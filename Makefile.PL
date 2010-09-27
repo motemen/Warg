@@ -3,7 +3,12 @@ use inc::Module::Install;
 name 'Warg';
 all_from 'lib/Warg.pm';
 
-# requires '';
+requires 'AnyEvent';
+requires 'Any::Moose';
+requires 'AnyEvent::IRC::Client';
+requires 'Log::Handler';
+
+requires_any_moose 'X::Getopt::Strict';
 
 test_requires 'Test::More';
 
