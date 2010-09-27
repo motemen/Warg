@@ -4,9 +4,10 @@ name 'Warg';
 all_from 'lib/Warg.pm';
 
 requires 'AnyEvent';
-requires 'Any::Moose';
 requires 'AnyEvent::IRC::Client';
 requires 'Log::Handler';
+
+requires 'Any::Moose';
 
 requires_any_moose 'X::Getopt::Strict';
 

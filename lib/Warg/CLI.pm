@@ -66,11 +66,26 @@ sub _build_logger {
     return $logger;
 }
 
+has manager => (
+    is  => 'rw',
+    isa => 'Warg::Manager',
+    lazy_build => 1,
+);
+
+sub _build_manager {
+    my $self = shift;
+    return Warg::Manager->new(
+        client     => $self->client,
+        script_dir => $self->script_dir,
+    );
+}
+
 no Any::Moose;
 
 sub run {
     my $self = shift;
     $self->client->start;
+    $self->manager->initialize;
     $self->cv->wait;
 }
 
