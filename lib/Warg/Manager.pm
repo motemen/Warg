@@ -8,7 +8,7 @@ has client => (
     required => 1,
 );
 
-has script_dir => (
+has downloader_dir => (
     is  => 'rw',
     isa => 'Path::Class::Dir',
     coerce   => 1,
@@ -22,6 +22,11 @@ has scripts => (
     lazy_build => 1,
 );
 
+sub _build_scripts {
+    my $self = shift;
+    return [ grep { $_->basename =~ /\.pl$/ }  $self->downloader_dir->children ];
+}
+
 has script_metadata => (
     is  => 'rw',
     isa => 'HashRef[Warg::Downloader::Metadata]',
@@ -30,6 +35,10 @@ has script_metadata => (
 no Any::Moose;
 
 __PACKAGE__->meta->make_immutable;
+
+sub initialize {
+    my $self = shift;
+}
 
 sub produce_downloader_from_url {
     my ($self, $url) = @_;

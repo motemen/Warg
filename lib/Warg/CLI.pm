@@ -2,29 +2,55 @@ package Warg::CLI;
 use Any::Moose;
 
 use Warg::IRC::Client;
+use Warg::Manager;
 use AnyEvent;
 use Log::Handler;
 
 with any_moose('X::Getopt::Strict');
 
+# --server localhost:6667
 has server => (
     is  => 'rw',
     isa => 'Str',
     metaclass => 'Getopt',
     required  => 1,
+    documentation => 'IRC server to connect (host:port)',
 );
 
+# --debug | -d
 has debug => (
     is  => 'rw',
     isa => 'Bool',
-    metaclass => 'Getopt',
-    default   => 0,
+    default     => 0,
+    metaclass   => 'Getopt',
+    cmd_aliases => 'd',
 );
 
-has name => (
+# --downloader-dir | -D ./downloader
+has downloader_dir => (
+    is  => 'rw',
+    isa => 'Str',
+    default     => './downloader',
+    metaclass   => 'Getopt',
+    cmd_flag    => 'downloader-dir',
+    cmd_aliases => 'D',
+    documentation => 'Downloader scripts directory',
+);
+
+# --nick warg
+has nick => (
     is  => 'rw',
     isa => 'Str',
     metaclass => 'Getopt',
+    documentation => 'IRC nick',
+);
+
+# --password xyz
+has password => (
+    is  => 'rw',
+    isa => 'Str',
+    metaclass => 'Getopt',
+    documentation => 'IRC server password',
 );
 
 has client => (
@@ -42,7 +68,9 @@ sub _build_client {
         port   => $port,
         logger => $self->logger,
     );
-    $args{name} = $self->name if $self->name;
+    for (qw(nick password)) {
+        $args{$_} = $self->{$_} if $self->{$_};
+    }
 
     return Warg::IRC::Client->new(%args);
 }
@@ -75,8 +103,8 @@ has manager => (
 sub _build_manager {
     my $self = shift;
     return Warg::Manager->new(
-        client     => $self->client,
-        script_dir => $self->script_dir,
+        client         => $self->client,
+        downloader_dir => $self->downloader_dir,
     );
 }
 

@@ -2,7 +2,7 @@ package Warg::IRC::Client;
 use Any::Moose;
 
 use AnyEvent::IRC::Client;
-use AnyEvent::IRC::Util qw(mk_msg);
+use AnyEvent::IRC::Util qw(mk_msg rfc_code_to_name);
 
 has client => (
     is  => 'rw',
@@ -15,7 +15,7 @@ sub _build_client {
     return AnyEvent::IRC::Client->new;
 }
 
-has name => (
+has nick => (
     is  => 'rw',
     isa => 'Str',
     default => 'warg',
@@ -49,7 +49,8 @@ sub connect_info {
     my $self = shift;
 
     my %info = (
-        nick => $self->name,
+        nick => $self->nick,
+        name => __PACKAGE__,
     );
     $info{password} = $self->password if $self->password;
 
@@ -101,6 +102,11 @@ sub on_debug_recv {
     my ($self, $con, $ircmsg) = @_;
     my $line = mk_msg $ircmsg->{prefix}, $ircmsg->{command}, @{$ircmsg->{params}};
     $self->log(debug => "<<< $line");
+}
+
+sub on_error {
+    my ($self, $con, $code, $message, $ircmsg) = @_;
+    $self->log(error => rfc_code_to_nick($code), $message);
 }
 
 1;
