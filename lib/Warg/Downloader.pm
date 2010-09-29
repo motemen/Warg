@@ -2,6 +2,8 @@ package Warg::Downloader;
 use Any::Moose;
 use Any::Moose 'X::Types::Path::Class';
 
+with 'Warg::Role::Log';
+
 has script => (
     is  => 'ro',
     isa => 'Path::Class::File',
@@ -14,9 +16,11 @@ has client => (
     isa => 'Warg::IRC::Client',
 );
 
-has logger => (
+our $id = 0;
+has id => (
     is  => 'rw',
-    isa => 'Log::Handler',
+    isa => 'Int',
+    default => sub { ++$id },
 );
 
 has code => (
@@ -39,21 +43,26 @@ sub _build_code {
 has mech => (
     is  => 'rw',
     isa => 'Warg::WWW::Mechanize',
-    default => sub { Warg::WWW::Mechanize->new },
+    lazy_build => 1,
 );
+
+sub _build_mech {
+    my $self = shift;
+    return Warg::WWW::Mechanize->new(downloader => $self);
+}
 
 no Any::Moose;
 
 __PACKAGE__->meta->make_immutable;
 
-use Coro;
 use AnyEvent;
+use Coro;
+use Coro::LWP;
 use Coro::AnyEvent;
-use HTTP::Request::Common;
 
 sub from_script {
-    my ($class, $script) = @_;
-    return $class->new(script => $script);
+    my ($class, $script, %args) = @_;
+    return $class->new(script => $script, %args);
 }
 
 sub work {
@@ -63,47 +72,73 @@ sub work {
     };
 }
 
-sub log {
-    my ($self, $level, @args) = @_;
-    if (my $logger = $self->logger) {
-        $logger->log($level, @args);
-    }
+sub log_name {
+    return "Downloader[$_[0]{id}]";
 }
 
-sub prompt {
+sub say {
+    my ($self, @args) = @_;
+    $self->log(notice => @args);
+}
+
+sub ask {
     my ($self, $prompt) = @_;
 
     local $| = 1;
     print "$prompt: ";
 
-    my $w = AE::io *STDIN, 0, Coro::rouse_cb;
-    Coro::rouse_wait;
+    Coro::AnyEvent::readable *STDIN;
 
     chomp (my $res = <STDIN>);
     return $res;
 }
 
+sub prepare_request {
+    my ($self, $req) = @_;
+    $self->log(debug => $req->method, $req->uri);
+}
+
 sub download {
     my ($self, $url) = @_;
+
+    $self->log(notice => "start downloading <$url>");
+
     my $fh;
     my $res = $self->mech->get($url, ':content_cb' => sub {
         my ($data, $res) = @_;
-        warn length $data;
-        warn $data;
         unless (defined $fh) {
             my $filename = $res->filename || $url;
             $filename =~ s/[^\w\.]/_/g;
-            open $fh, '>', $filename;
+            open $fh, '>', $filename or die $!;
+            $self->log(notice => "filename: $filename");
         }
         print $fh $data;
     });
-use Data::Dumper;
-    warn Data::Dumper->new([$res])->Indent(1)->Dump;
+    close $fh;
 }
 
 package Warg::WWW::Mechanize;
 use base 'WWW::Mechanize';
 use HTML::TreeBuilder::XPath;
+use Scalar::Util qw(weaken);
+
+sub new {
+    my ($class, %args) = @_;
+    my $downloader = delete $args{downloader};
+    my $self = $class->SUPER::new(%args);
+    $self->downloader($downloader) if $downloader;
+    return $self;
+}
+
+sub agent {
+    'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US) AppleWebKit/534.3 (KHTML, like Gecko) Chrome/6.0.472.62 Safari/534.3';
+}
+
+sub downloader {
+    my $self = shift;
+    weaken($self->{downloader} = $_[0]) if @_;
+    return $self->{downloader};
+}
 
 sub tree {
     my $self = shift;
@@ -125,8 +160,10 @@ sub DESTROY {
     }
 }
 
-sub agent {
-    'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US) AppleWebKit/534.3 (KHTML, like Gecko) Chrome/6.0.472.62 Safari/534.3';
+sub get_basic_credentials {
+    my ($self, $realm, $uri, $isproxy) = @_;
+    my $user_pass = $self->downloader->ask(qq(Basic auth for '$realm' <$uri>));
+    return split /:/, $user_pass;
 }
 
 1;
