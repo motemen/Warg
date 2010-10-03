@@ -1,9 +1,20 @@
 package Warg::CLI;
 use Any::Moose;
 
+# is
+# - warg cli
+# has
+# - irc client
+# - downloader manager
+# - logger
+# does
+# - setup components
+# - run everything
+
 use Warg::IRC::Client;
 use Warg::Manager;
 use AnyEvent;
+use Coro::Timer;
 use Log::Handler;
 
 with any_moose('X::Getopt::Strict');
@@ -53,13 +64,13 @@ has password => (
     documentation => 'IRC server password',
 );
 
-has client => (
+has irc => (
     is  => 'rw',
     isa => 'Warg::IRC::Client',
     lazy_build => 1,
 );
 
-sub _build_client {
+sub _build_irc {
     my $self = shift;
 
     my ($host, $port) = split /:/, $self->server;
@@ -103,7 +114,7 @@ has manager => (
 sub _build_manager {
     my $self = shift;
     return Warg::Manager->new(
-        client         => $self->client,
+        client         => $self->irc,
         downloader_dir => $self->downloader_dir,
     );
 }
@@ -112,13 +123,18 @@ no Any::Moose;
 
 sub run {
     my $self = shift;
-    $self->client->start;
+    $self->irc->start;
     $self->manager->initialize;
     $self->cv->wait;
 }
 
 sub cv {
     return AE::cv;
+}
+
+sub sleep {
+    my ($self, $n) = @_;
+    Coro::Timer::sleep $n;
 }
 
 1;

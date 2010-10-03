@@ -8,6 +8,7 @@ has client => (
     is  => 'rw',
     isa => 'AnyEvent::IRC::Client',
     lazy_build => 1,
+    handles => [ 'reg_cb' ],
 );
 
 sub _build_client {
@@ -80,6 +81,12 @@ sub log {
     if ($self->logger) {
         $self->logger->log($level, @args);
     }
+}
+
+# $irc->notice($channel, $message)
+sub notice {
+    my $self = shift;
+    $self->client->send_srv(NOTICE => @_);
 }
 
 ### Handlers

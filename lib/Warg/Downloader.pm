@@ -2,6 +2,16 @@ package Warg::Downloader;
 use Any::Moose;
 use Any::Moose 'X::Types::Path::Class';
 
+# is
+# - downloader, session
+# has
+# - coderef to execute
+# - interface
+# - mech
+# does
+# - download file
+# - interact with human via interface
+
 with 'Warg::Role::Log';
 
 has script => (
@@ -11,12 +21,8 @@ has script => (
     required => 1,
 );
 
-has client => (
-    is  => 'rw',
-    isa => 'Warg::IRC::Client',
-);
-
 our $id = 0;
+
 has id => (
     is  => 'rw',
     isa => 'Int',
@@ -34,10 +40,12 @@ sub _build_code {
 
     (my $pkg = $self->script) =~ s/\W/_/g;
 
-    my $code = eval "package $pkg;\n" . scalar $self->script->slurp;
+    my $code = $self->script->slurp;
+    my $sub  = eval qq{ package $pkg; $code };
     die $@ if $@;
+    die 'not a CODE' unless ref $sub eq 'CODE';
 
-    return $code;
+    return $sub;
 }
 
 has mech => (
@@ -50,6 +58,14 @@ sub _build_mech {
     my $self = shift;
     return Warg::WWW::Mechanize->new(downloader => $self);
 }
+
+has interface => (
+    is  => 'rw',
+    default => sub {
+        require Warg::Downloader::Interface::Console;
+        return  Warg::Downloader::Interface::Console->new;
+    },
+);
 
 no Any::Moose;
 
@@ -76,21 +92,17 @@ sub log_name {
     return "Downloader[$_[0]{id}]";
 }
 
+# ほんとうは $sef->log するときに $self->interface->say するようにしたい
+# TODO Log::Handler::Output::Warg::Downloader::Interface?
 sub say {
     my ($self, @args) = @_;
     $self->log(notice => @args);
+    $self->interface->say(@args);
 }
 
 sub ask {
     my ($self, $prompt) = @_;
-
-    local $| = 1;
-    print "$prompt: ";
-
-    Coro::AnyEvent::readable *STDIN;
-
-    chomp (my $res = <STDIN>);
-    return $res;
+    return $self->interface->ask($prompt);
 }
 
 sub prepare_request {
@@ -101,7 +113,7 @@ sub prepare_request {
 sub download {
     my ($self, $url) = @_;
 
-    $self->log(notice => "start downloading <$url>");
+    $self->say("start downloading <$url>");
 
     my $fh;
     my $res = $self->mech->get($url, ':content_cb' => sub {
@@ -110,7 +122,7 @@ sub download {
             my $filename = $res->filename || $url;
             $filename =~ s/[^\w\.]/_/g;
             open $fh, '>', $filename or die $!;
-            $self->log(notice => "filename: $filename");
+            $self->say("filename: $filename");
         }
         print $fh $data;
     });

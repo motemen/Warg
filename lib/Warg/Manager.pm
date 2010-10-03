@@ -2,6 +2,15 @@ package Warg::Manager;
 use Any::Moose;
 use Any::Moose 'X::Types::Path::Class';
 
+# is
+# - downloder manager
+# has
+# - irc client
+# - downloader metadata & global config
+# does
+# - check human input for new download
+# - produce downloader session
+
 has client => (
     is  => 'ro',
     isa => 'Warg::IRC::Client',
@@ -41,14 +50,18 @@ sub initialize {
 }
 
 sub produce_downloader_from_url {
-    my ($self, $url) = @_;
+    my ($self, $url, %args) = @_;
 
     foreach ($self->scripts) {
         my $meta = $self->script_metadata->{$_} or next;
         if ($meta->handles_url($url)) {
             return $self->produce_downloder(
-                script => $_,
-                url    => $url,
+                script    => $_,
+                url       => $url,
+                interface => Warg::Downloader::Interface::IRC->new(
+                    client  => $self->client,
+                    channel => $args{channel},
+                ),
             );
         }
     }
