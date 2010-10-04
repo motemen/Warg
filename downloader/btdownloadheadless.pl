@@ -1,6 +1,7 @@
 use strict;
 use warnings;
 use AnyEvent::Util;
+use Coro;
 use Coro::Handle;
 use Coro::Timer qw(sleep);
 

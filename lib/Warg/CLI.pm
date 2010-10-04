@@ -116,6 +116,7 @@ sub _build_manager {
     return Warg::Manager->new(
         client         => $self->irc,
         downloader_dir => $self->downloader_dir,
+        logger         => $self->logger,
     );
 }
 
@@ -124,7 +125,6 @@ no Any::Moose;
 sub run {
     my $self = shift;
     $self->irc->start;
-    $self->manager->initialize;
     $self->cv->wait;
 }
 
