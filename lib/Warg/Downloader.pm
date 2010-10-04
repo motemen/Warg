@@ -81,10 +81,15 @@ sub from_script {
     return $class->new(script => $script, %args);
 }
 
+sub work_sync {
+    my ($self, $url) = @_;
+    $self->code->($self, $url);
+}
+
 sub work {
     my ($self, $url) = @_;
     async {
-        $self->code->($self, $url);
+        $self->work_sync($url);
     };
 }
 
@@ -126,7 +131,7 @@ sub download {
         }
         print $fh $data;
     });
-    close $fh;
+    close $fh if defined $fh;
 }
 
 package Warg::WWW::Mechanize;

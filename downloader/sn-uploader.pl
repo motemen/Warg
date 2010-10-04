@@ -14,10 +14,9 @@ sub {
     my $dlkey = $self->ask('dlkey');
     $self->mech->submit_form(with_fields => { dlkey => $dlkey });
 
-    if (my $meta_refresh = [ $self->mech->tree->findnodes(q<//meta[@http-equiv='Refresh']>) ]->[0]) {
-        my $content = $meta_refresh->attr('content');
-        if (my ($download_url) = $content =~ /^\d+;URL=(.+)/) {
-            $self->download($download_url);
-        }
+    my $base = $res->base;
+    $base =~ s</[^/]+$><>;
+    if (my $link = $self->mech->find_link(url_abs_regex => qr(^$base/\w+))) {
+        $self->download($link->url);
     }
 };
