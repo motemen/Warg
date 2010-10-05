@@ -22,6 +22,7 @@ my $interface = Warg::Downloader::Interface::Code->new(
 my $downloader = new_ok 'Warg::Downloader', [
     script    => 'downloader/sn-uploader.pl',
     interface => $interface,
+    log_level => 'emerg',
 ];
 
 $downloader->mech->add_handler(
@@ -38,6 +39,7 @@ cmp_deeply $downloader->mech->response, methods(
 
 cede; # resume working; go POST http://ichigo-up.com/Sn2/up3/upload.cgi
 cmp_deeply $downloader->mech->response, methods(
+    base    => str 'http://ichigo-up.com/Sn2/up3/upload.cgi',
     request => methods(
         method => 'POST',
         parsed_content => {
@@ -47,13 +49,13 @@ cmp_deeply $downloader->mech->response, methods(
             mode  => 'dl',
         },
     ),
-    base    => str 'http://ichigo-up.com/Sn2/up3/upload.cgi',
 );
 
 cede; # resume working; go POST http://ichigo-up.com/Sn2/up3/upload.cgi
 cmp_deeply $downloader->mech->response, methods(
     base => str 'http://ichigo-up.com/Sn2/up3/ggg/re10061.tif_F3f1W9TZGbWn6Ws6egs4/re10061.tif',
-    [ header => 'Content-Type' ] => 'image/tiff',
+    [ header => 'Content-Type' ]   => 'image/tiff',
+    [ header => 'Content-Length' ] => '786572',
 );
 
 done_testing;

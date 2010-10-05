@@ -56,7 +56,22 @@ has mech => (
 
 sub _build_mech {
     my $self = shift;
-    return Warg::WWW::Mechanize->new(downloader => $self);
+    my $mech = Warg::WWW::Mechanize->new(downloader => $self);
+    $mech->add_handler(
+        request_send => sub {
+            my ($req) = @_;
+            $self->log(debug => $req->method, $req->uri);
+            return;
+        },
+    );
+    $mech->add_handler(
+        response_data => sub {
+            my ($res) = @_;
+            $self->log(debug => $res->request->uri, $res->code, $res->content_type);
+            return;
+        },
+    );
+    return $mech
 }
 
 has interface => (
@@ -116,22 +131,28 @@ sub prepare_request {
 }
 
 sub download {
-    my ($self, $url) = @_;
+    my ($self, $url, $option) = @_;
+
+    $option ||= {};
 
     $self->say("start downloading <$url>");
 
-    my $fh;
+    my ($filename, $fh);
     my $res = $self->mech->get($url, ':content_cb' => sub {
         my ($data, $res) = @_;
         unless (defined $fh) {
-            my $filename = $res->filename || $url;
-            $filename =~ s/[^\w\.]/_/g;
+            $filename = $res->filename || $url;
+            $filename =~ s/[^\w\.-]/_/g;
+            $filename = $option->{prefix} . $filename if defined $option->{prefix};
+
             open $fh, '>', $filename or die $!;
-            $self->say("filename: $filename");
+            $self->log(info => "filename: $filename");
         }
         print $fh $data;
     });
     close $fh if defined $fh;
+
+    $self->say("downloaded $filename");
 }
 
 package Warg::WWW::Mechanize;

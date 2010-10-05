@@ -8,11 +8,11 @@ require LWP::UserAgent;
 no warnings 'redefine';
 
 *LWP::UserAgent::simple_request = sub {
-    my ($self, $request) = @_;
+    my ($self, $request, $content_cb) = @_;
 
     $request = $self->prepare_request($request);
 
-    note $request->method . ' ' . $request->uri;
+    note '[MockLWP] ' . $request->method . ' ' . $request->uri;
 
     my $file = $request->uri;
     $file =~ s<^https?://><>;
@@ -25,6 +25,10 @@ no warnings 'redefine';
 
     my $res = HTTP::Response->parse(do { local $/; <$fh> });
     $res->request($request);
+
+    if (ref $content_cb eq 'CODE') {
+        $content_cb->($res->content, $res, undef); # XXX no protocol
+    }
 
     $self->run_handlers(response_done => $res);
 

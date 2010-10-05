@@ -5,7 +5,10 @@ all_from 'lib/Warg.pm';
 
 requires 'AnyEvent';
 requires 'AnyEvent::IRC::Client';
+requires 'Coro';
 requires 'Log::Handler';
+requires 'WWW::Mechanize';
+requires 'HTTP::Config';
 
 requires 'Any::Moose';
 

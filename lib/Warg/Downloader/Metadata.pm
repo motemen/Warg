@@ -1,5 +1,6 @@
 package Warg::Downloader::Metadata;
 use Any::Moose;
+use Any::Moose 'X::Types::Path::Class';
 
 has script => (
     is  => 'ro',

@@ -6,8 +6,8 @@ sub {
 
     my $res = $self->mech->get($url);
 
-    my $comment = [ $self->mech->tree->findnodes(q<//table//tr[td[.='COMMENT']]/td[2]/text()>) ]->[0]->string_value;
-    $self->say("COMMENT: $comment");
+    my @tr = $self->mech->tree->findnodes(q<//table//tr[td[2]]>);
+    $self->say(join ': ', $_->findnodes_as_strings('td/text()')) for @tr;
 
     my $dlkey = $self->ask('dlkey');
     $self->mech->submit_form(with_fields => { dlkey => $dlkey });
