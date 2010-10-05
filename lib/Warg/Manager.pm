@@ -34,6 +34,7 @@ has script_metadata => (
 no Any::Moose;
 
 use Warg::Downloader::Metadata;
+use LWP::Simple qw($ua); # XXX mech?
 
 __PACKAGE__->meta->make_immutable;
 
@@ -49,18 +50,23 @@ sub BUILD {
 sub produce_downloader_from_url {
     my ($self, $url, %args) = @_;
 
+    # mech->get にして、場合によっては downloder が最初のレスポンスを再利用する
+    # という風にするのがいいかも
+
+    my $res = $ua->head($url);
+
     foreach (sort keys %{ $self->script_metadata }) {
         my $meta = $self->script_metadata->{$_} or next;
-        $meta->handles_url($url) or next;
+        $meta->handles_res($res) or next;
 
-        return $self->produce_downloder(
-            # script    => $_,
-            code      => $meta->code,
-            url       => $url,
-            interface => Warg::Downloader::Interface::IRC->new(
-                client  => $self->client,
-                channel => $args{channel},
-            ),
+        return $meta->new_downloader(
+            $self->client ? (
+                interface => Warg::Downloader::Interface::IRC->new(
+                    client  => $self->client,
+                    channel => $args{channel},
+                ),
+            ) : (),
+            %args,
         );
     }
 }

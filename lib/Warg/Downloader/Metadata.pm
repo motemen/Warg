@@ -12,23 +12,53 @@ has script => (
 has http_config => (
     is  => 'rw',
     isa => 'Maybe[HTTP::Config]',
+);
+
+has code => (
+    is  => 'rw',
+    isa => 'CodeRef',
     lazy_build => 1,
 );
 
-sub _build_http_config {
+sub _eval_script {
     my $self = shift;
 
     (my $pkg = $self->script) =~ s/\W/_/g;
+
     my $code = $self->script->slurp;
     my $sub  = eval qq{ package $pkg; $code };
     die $@ if $@;
+    die 'script did not return a CODE' unless ref $sub eq 'CODE';
 
-    no strict 'refs';
-    return ${"$pkg\::Config"};
+    return ($pkg, $sub);
 }
 
 no Any::Moose;
 
+use Warg::Downloader;
+
 __PACKAGE__->meta->make_immutable;
+
+sub BUILD {
+    my $self = shift;
+
+    my ($pkg, $sub) = $self->_eval_script;
+    $self->{code} = $sub;
+    $self->{http_config} = do { no strict 'refs'; ${"$pkg\::Config"} };
+}
+
+sub handles_res {
+    my ($self, $res) = @_;
+    return 0 unless $self->http_config;
+    return $self->http_config->matching($res);
+}
+
+sub new_downloader {
+    my ($self, %args) = @_;
+    return Warg::Downloader->new(
+        %args,
+        code => $self->code,
+    );
+}
 
 1;

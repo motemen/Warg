@@ -18,7 +18,6 @@ has script => (
     is  => 'ro',
     isa => 'Path::Class::File',
     coerce   => 1,
-    required => 1,
 );
 
 our $id = 0;
@@ -33,8 +32,10 @@ has code => (
     is  => 'ro',
     isa => 'CodeRef',
     lazy_build => 1,
+    # required => 1
 );
 
+# TODO metadata に移動
 sub _build_code {
     my $self = shift;
 
@@ -90,6 +91,7 @@ use AnyEvent;
 use Coro;
 use Coro::LWP;
 use Coro::AnyEvent;
+use Carp;
 
 sub from_script {
     my ($class, $script, %args) = @_;
@@ -102,7 +104,9 @@ sub work_sync {
 }
 
 sub work {
-    my ($self, $url) = @_;
+    my $self = shift;
+    my $url  = shift or croak 'missing url';
+
     async {
         $self->work_sync($url);
     };

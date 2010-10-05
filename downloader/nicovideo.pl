@@ -4,7 +4,7 @@ use warnings;
 use HTTP::Config;
 
 our $Config = HTTP::Config->new;
-$Config->add(m_host => 'nicovideo.jp', m_path_prefix => '/watch/');
+$Config->add(m_host => 'www.nicovideo.jp', m_path_prefix => '/watch/');
 $Config->add(m_host => 'nico.ms');
 
 # from http://gist.github.com/407777
