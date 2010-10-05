@@ -19,11 +19,13 @@ my $interface = Warg::Downloader::Interface::Code->new(
     say => sub { shift; note @_ },
     ask => sub { return 'DLKEY' }
 );
-my $downloader = new_ok 'Warg::Downloader', [
-    script    => 'downloader/sn-uploader.pl',
-    interface => $interface,
-    log_level => 'emerg',
-];
+my $downloader = Warg::Downloader->from_script(
+    'downloader/sn-uploader.pl', (
+        interface => $interface,
+        log_level => 'emerg',
+    )
+);
+isa_ok $downloader, 'Warg::Downloader';
 
 $downloader->mech->add_handler(
     request_preprepare => sub { cede },

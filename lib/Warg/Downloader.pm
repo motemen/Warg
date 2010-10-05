@@ -14,10 +14,10 @@ use Any::Moose 'X::Types::Path::Class';
 
 with 'Warg::Role::Log';
 
-has script => (
+has code => (
     is  => 'ro',
-    isa => 'Path::Class::File',
-    coerce   => 1,
+    isa => 'CodeRef',
+    required => 1
 );
 
 our $id = 0;
@@ -27,27 +27,6 @@ has id => (
     isa => 'Int',
     default => sub { ++$id },
 );
-
-has code => (
-    is  => 'ro',
-    isa => 'CodeRef',
-    lazy_build => 1,
-    # required => 1
-);
-
-# TODO metadata に移動
-sub _build_code {
-    my $self = shift;
-
-    (my $pkg = $self->script) =~ s/\W/_/g;
-
-    my $code = $self->script->slurp;
-    my $sub  = eval qq{ package $pkg; $code };
-    die $@ if $@;
-    die 'not a CODE' unless ref $sub eq 'CODE';
-
-    return $sub;
-}
 
 has mech => (
     is  => 'rw',
@@ -96,7 +75,9 @@ use File::Util qw(escape_filename);
 
 sub from_script {
     my ($class, $script, %args) = @_;
-    return $class->new(script => $script, %args);
+    require Warg::Downloader::Metadata;
+    my $meta = Warg::Downloader::Metadata->new(script => $script);
+    return $meta->new_downloader(%args);
 }
 
 sub work_sync {
