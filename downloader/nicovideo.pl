@@ -42,5 +42,5 @@ sub {
         return;
     }
 
-    $self->download($media_url, { prefix => "$title." });
+    $self->download($media_url, { prefix => "$title.$video_id." });
 };
