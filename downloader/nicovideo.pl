@@ -32,8 +32,10 @@ sub {
 
     $self->mech->get($url);
 
-    my $title = $self->mech->tree->findvalue('//h1') || '';
-    $title =~ s/[^\w_-]/_/g;
+    my $prefix = "$video_id.";
+    if (my $title = $self->mech->tree->findvalue('//h1')) {
+        $prefix = "$title.$prefix";
+    }
 
     my $media_url = eval { $client->prepare_download($video_id) };
     if (!$media_url) {
@@ -42,5 +44,5 @@ sub {
         return;
     }
 
-    $self->download($media_url, { prefix => "$title.$video_id." });
+    $self->download($media_url, { prefix => $prefix });
 };

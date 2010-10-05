@@ -92,6 +92,7 @@ use Coro;
 use Coro::LWP;
 use Coro::AnyEvent;
 use Carp;
+use File::Util qw(escape_filename);
 
 sub from_script {
     my ($class, $script, %args) = @_;
@@ -146,8 +147,8 @@ sub download {
         my ($data, $res) = @_;
         unless (defined $fh) {
             $filename = $res->filename || $url;
-            $filename =~ s/[^\w\.-]/_/g;
             $filename = $option->{prefix} . $filename if defined $option->{prefix};
+            $filename = escape_filename $filename;
 
             open $fh, '>', $filename or die $!;
             $self->log(info => "filename: $filename");

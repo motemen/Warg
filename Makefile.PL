@@ -9,6 +9,7 @@ requires 'Coro';
 requires 'Log::Handler';
 requires 'WWW::Mechanize';
 requires 'HTTP::Config';
+requires 'File::Util';
 
 requires 'Any::Moose';
 
