@@ -30,29 +30,11 @@ has id => (
 
 has mech => (
     is  => 'rw',
-    isa => 'Warg::WWW::Mechanize',
-    lazy_build => 1,
+    isa => 'Warg::Mech',
+    default => sub {
+        return Warg::Mech->new;
+    },
 );
-
-sub _build_mech {
-    my $self = shift;
-    my $mech = Warg::WWW::Mechanize->new(downloader => $self);
-    $mech->add_handler(
-        request_send => sub {
-            my ($req) = @_;
-            $self->log(debug => $req->method, $req->uri);
-            return;
-        },
-    );
-    $mech->add_handler(
-        response_data => sub {
-            my ($res) = @_;
-            $self->log(debug => $res->request->uri, $res->code, $res->content_type);
-            return;
-        },
-    );
-    return $mech
-}
 
 has interface => (
     is  => 'rw',
@@ -66,6 +48,8 @@ no Any::Moose;
 
 __PACKAGE__->meta->make_immutable;
 
+use Warg::Mech;
+
 use AnyEvent;
 use Coro;
 use Coro::LWP;
@@ -73,10 +57,16 @@ use Coro::AnyEvent;
 use Carp;
 use File::Util qw(escape_filename);
 
+sub metadata_class {
+    my $class = shift;
+
+    require Warg::Downloader::Metadata;
+    return 'Warg::Downloader::Metadata';
+}
+
 sub from_script {
     my ($class, $script, %args) = @_;
-    require Warg::Downloader::Metadata;
-    my $meta = Warg::Downloader::Metadata->new(script => $script);
+    my $meta = $class->metadata_class->new(script => $script);
     return $meta->new_downloader(%args);
 }
 
@@ -139,55 +129,6 @@ sub download {
     close $fh if defined $fh;
 
     $self->say("downloaded $filename");
-}
-
-package Warg::WWW::Mechanize;
-use base 'WWW::Mechanize';
-use HTML::TreeBuilder::XPath;
-use Scalar::Util qw(weaken);
-
-sub new {
-    my ($class, %args) = @_;
-    my $downloader = delete $args{downloader};
-    my $self = $class->SUPER::new(%args);
-    $self->downloader($downloader) if $downloader;
-    return $self;
-}
-
-sub agent {
-    'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US) AppleWebKit/534.3 (KHTML, like Gecko) Chrome/6.0.472.62 Safari/534.3';
-}
-
-sub downloader {
-    my $self = shift;
-    weaken($self->{downloader} = $_[0]) if @_;
-    return $self->{downloader};
-}
-
-sub tree {
-    my $self = shift;
-    return $self->{tree} ||= HTML::TreeBuilder::XPath->new_from_content($self->response->decoded_content);
-}
-
-sub update_html {
-    my ($self, $html) = @_;
-    if (my $tree = delete $self->{tree}) {
-        $tree->delete;
-    }
-    return $self->SUPER::update_html($html);
-}
-
-sub DESTROY {
-    my $self = shift;
-    if (my $tree = delete $self->{tree}) {
-        $tree->delete;
-    }
-}
-
-sub get_basic_credentials {
-    my ($self, $realm, $uri, $isproxy) = @_;
-    my $user_pass = $self->downloader->ask(qq(Basic auth for '$realm' <$uri>));
-    return split /:/, $user_pass;
 }
 
 1;

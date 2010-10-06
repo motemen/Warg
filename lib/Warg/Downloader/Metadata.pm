@@ -17,8 +17,13 @@ has http_config => (
 has code => (
     is  => 'rw',
     isa => 'CodeRef',
-    lazy_build => 1,
 );
+
+no Any::Moose;
+
+__PACKAGE__->meta->make_immutable;
+
+use Warg::Downloader;
 
 sub _eval_script {
     my $self = shift;
@@ -32,12 +37,6 @@ sub _eval_script {
 
     return ($pkg, $sub);
 }
-
-no Any::Moose;
-
-use Warg::Downloader;
-
-__PACKAGE__->meta->make_immutable;
 
 sub BUILD {
     my $self = shift;
