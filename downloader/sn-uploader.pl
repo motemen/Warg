@@ -1,6 +1,10 @@
 use strict;
 use warnings;
 
+use HTTP::Config;
+
+our $Config = qr</upload\.cgi\?mode=dl&file=\w+$>;
+
 sub {
     my ($self, $url) = @_;
 

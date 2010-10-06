@@ -30,6 +30,7 @@ has downloader_dir => (
     isa => 'Path::Class::Dir',
     coerce   => 1,
     required => 1,
+    default  => './downloader',
 );
 
 has script_metadata => (
@@ -53,6 +54,10 @@ no Any::Moose;
 
 use Warg::Mech;
 use Warg::Downloader::Metadata;
+use Coro;
+use Regexp::Common qw(URI);
+
+our $RE_HTTP = $RE{URI}{HTTP}{ -scheme => 'https?' };
 
 __PACKAGE__->meta->make_immutable;
 

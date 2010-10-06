@@ -11,7 +11,7 @@ has script => (
 
 has http_config => (
     is  => 'rw',
-    isa => 'Maybe[HTTP::Config]',
+    # isa => 'Maybe[HTTP::Config]',
 );
 
 has code => (
@@ -46,10 +46,17 @@ sub BUILD {
     $self->{http_config} = do { no strict 'refs'; ${"$pkg\::Config"} };
 }
 
+# TODO HTTP::Config 微妙に使いづらいのでなんぞ適当に
 sub handles_res {
     my ($self, $res) = @_;
+
     return 0 unless $self->http_config;
-    return $self->http_config->matching($res);
+
+    if (ref $self->http_config eq 'HTTP::Config') {
+        return $self->http_config->matching($res);
+    } elsif (ref $self->http_config eq 'Regexp') {
+        return $res->base =~ $self->http_config;
+    }
 }
 
 sub new_downloader {
