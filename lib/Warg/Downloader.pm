@@ -38,10 +38,16 @@ has mech => (
 
 has interface => (
     is  => 'rw',
+    isa => 'Warg::Role::Interface',
     default => sub {
         require Warg::Downloader::Interface::Console;
         return  Warg::Downloader::Interface::Console->new;
     },
+);
+
+has args => (
+    is  => 'rw',
+    isa => 'Maybe[HashRef]',
 );
 
 no Any::Moose;
@@ -93,12 +99,12 @@ sub log_name {
 sub say {
     my ($self, @args) = @_;
     $self->log(notice => @args);
-    $self->interface->say(@args);
+    $self->interface->say("@args", $self->args);
 }
 
 sub ask {
     my ($self, $prompt) = @_;
-    return $self->interface->ask($prompt);
+    return $self->interface->ask($prompt, $self->args);
 }
 
 sub prepare_request {

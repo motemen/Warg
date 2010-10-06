@@ -2,6 +2,8 @@ package Warg::Role::Log;
 use Any::Moose '::Role';
 use Log::Handler;
 
+our $DefaultLogLevel = 'notice';
+
 has logger => (
     is  => 'rw',
     isa => 'Log::Handler',
@@ -11,7 +13,7 @@ has logger => (
 has log_level => (
     is  => 'rw',
     isa => 'Str',
-    default => 'notice',
+    default => sub { $DefaultLogLevel },
     trigger => \&_set_logger_level,
 );
 

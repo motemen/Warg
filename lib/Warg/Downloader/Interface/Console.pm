@@ -1,5 +1,13 @@
 package Warg::Downloader::Interface::Console;
 use Any::Moose;
+
+with 'Warg::Role::Interface';
+
+no Any::Moose;
+
+__PACKAGE__->meta->make_immutable;
+
+use AnyEvent;
 use Coro::AnyEvent;
 
 sub say {
@@ -15,6 +23,21 @@ sub ask {
 
     chomp (my $res = <STDIN>);
     return $res;
+}
+
+sub interact {
+    my ($self, $cb) = @_;
+
+    local $| = 1;
+    while () {
+        print 'warg> ';
+        Coro::AnyEvent::readable *STDIN;
+        my $line = <STDIN>;
+        last unless defined $line;
+
+        chomp $line;
+        $cb->($line);
+    }
 }
 
 1;

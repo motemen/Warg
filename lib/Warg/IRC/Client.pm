@@ -1,8 +1,8 @@
 package Warg::IRC::Client;
 use Any::Moose;
 
-use AnyEvent::IRC::Client;
-use AnyEvent::IRC::Util qw(mk_msg rfc_code_to_name);
+with any_moose('X::Getopt::Strict');
+with 'Warg::Role::Log';
 
 has client => (
     is  => 'rw',
@@ -20,31 +20,36 @@ has nick => (
     is  => 'rw',
     isa => 'Str',
     default => 'warg',
+    metaclass => 'Getopt',
 );
 
 has password => (
     is  => 'rw',
     isa => 'Maybe[Str]',
+    metaclass => 'Getopt',
 );
 
 has port => (
     is  => 'rw',
     isa => 'Int',
+    default => 6667,
     required => 1,
+    metaclass => 'Getopt',
 );
 
 has host => (
     is  => 'rw',
     isa => 'Str',
     required => 1,
-);
-
-has logger => (
-    is  => 'rw',
-    isa => 'Maybe[Log::Handler]',
+    metaclass => 'Getopt',
 );
 
 no Any::Moose;
+
+__PACKAGE__->meta->make_immutable;
+
+use AnyEvent::IRC::Client;
+use AnyEvent::IRC::Util qw(mk_msg rfc_code_to_name);
 
 sub connect_info {
     my $self = shift;
@@ -76,17 +81,12 @@ sub setup_callbacks {
     }
 }
 
-sub log {
-    my ($self, $level, @args) = @_;
-    if ($self->logger) {
-        $self->logger->log($level, @args);
-    }
-}
-
 # $irc->notice($channel, $message)
 sub notice {
-    my $self = shift;
-    $self->client->send_srv(NOTICE => @_);
+    my ($self, $channel, @args) = @_;
+    my $message = "@args";
+    utf8::encode $message;
+    $self->client->send_srv(NOTICE => $channel, $message);
 }
 
 ### Handlers

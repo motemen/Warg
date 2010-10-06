@@ -1,7 +1,7 @@
 package Warg::Downloader::Interface::IRC;
 use Any::Moose;
-use Coro;
-use String::Random qw(random_regex);
+
+with 'Warg::Role::Interface';
 
 has client => (
     is  => 'rw',
@@ -9,30 +9,28 @@ has client => (
     required => 1,
 );
 
-has channel => (
-    is  => 'rw',
-    isa => 'Str',
-);
-
 no Any::Moose;
 
 __PACKAGE__->meta->make_immutable;
 
-sub _notice {
-    my $self = shift;
-    $self->client->notice($self->channel, @_);
-}
+use AnyEvent;
+use Coro;
+use String::Random qw(random_regex);
+use Carp;
 
 sub say {
-    my ($self, $message) = @_;
-    $self->_notice($message);
+    my ($self, $message, $args) = @_;
+    croak unless $args->{channel};
+
+    $self->client->notice($args->{channel}, $message);
 }
 
 sub ask {
-    my ($self, $prompt) = @_;
+    my ($self, $prompt, $args) = @_;
+    croak unless $args->{channel};
 
     my $session = random_regex('\w{4}');
-    $self->_notice(qq<[$session] $prompt (reply as '$session=blah)>);
+    $self->client->notice($args->{channel}, qq<[$session] $prompt? (reply as '$session=blah')>);
 
     # TODO ここもっと簡単に登録したい
     my $cb = rouse_cb;
@@ -40,6 +38,7 @@ sub ask {
         publicmsg => sub {
             my ($con, $channel, $msg) = @_;
 
+            return unless $channel eq $args->{channel};
             my $text = $msg->{params}->[1];
             return unless $text =~ /^\s*$session=(.+)$/;
 
@@ -49,6 +48,22 @@ sub ask {
 
     my $reply = rouse_wait $cb;
     return $reply;
+}
+
+sub interact {
+    my ($self, $cb) = @_;
+
+    $self->client->reg_cb(
+        publicmsg => sub {
+            my ($con, $channel, $msg) = @_;
+
+            my $text = $msg->{params}->[1];
+            $cb->($text, { channel => $channel });
+        }
+    );
+    $self->client->start;
+
+    AE::cv->wait;
 }
 
 1;
