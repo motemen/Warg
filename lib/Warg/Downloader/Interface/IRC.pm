@@ -14,6 +14,10 @@ has channel => (
     isa => 'Str',
 );
 
+no Any::Moose;
+
+__PACKAGE__->meta->make_immutable;
+
 sub _notice {
     my $self = shift;
     $self->client->notice($self->channel, @_);
@@ -28,7 +32,7 @@ sub ask {
     my ($self, $prompt) = @_;
 
     my $session = random_regex('\w{4}');
-    $self->_notice(qq<[$session] $prompt (reply as 'warg: $session=blah)>);
+    $self->_notice(qq<[$session] $prompt (reply as '$session=blah)>);
 
     # TODO ここもっと簡単に登録したい
     my $cb = rouse_cb;
@@ -37,7 +41,7 @@ sub ask {
             my ($con, $channel, $msg) = @_;
 
             my $text = $msg->{params}->[1];
-            return unless $text =~ /^warg:\s*$session=(.+)$/;
+            return unless $text =~ /^\s*$session=(.+)$/;
 
             $cb->($1);
         }

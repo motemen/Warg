@@ -61,9 +61,7 @@ sub tree {
 
 sub update_html {
     my ($self, $html) = @_;
-    if (my $tree = delete $self->{tree}) {
-        $tree->delete;
-    }
+    $self->_destroy_tree;
     return $self->SUPER::update_html($html);
 }
 
@@ -75,11 +73,17 @@ sub get_basic_credentials {
     }
 }
 
-sub DESTROY {
+sub _destroy_tree {
     my $self = shift;
     if (my $tree = delete $self->{tree}) {
         $tree->delete;
     }
+}
+
+sub DESTROY {
+    my $self = shift;
+    local $@;
+    $self->_destroy_tree;
 }
 
 1;

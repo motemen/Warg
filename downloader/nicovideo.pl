@@ -30,7 +30,7 @@ sub {
 
     local $WWW::Mechanize::HAS_ZLIB = 0; # muhaha
 
-    $self->mech->get($url);
+    $self->mech->get($url) unless ($self->mech->base || '') eq $url;
 
     my $prefix = "$video_id.";
     if (my $title = $self->mech->tree->findvalue('//h1')) {

@@ -31,10 +31,21 @@ has script_metadata => (
     default => sub { +{} },
 );
 
+has mech => (
+    is  => 'rw',
+    isa => 'Warg::Mech',
+    lazy_build => 1,
+);
+
+sub _build_mech {
+    my $self = shift;
+    return Warg::Mech->new(logger => $self->logger);
+}
+
 no Any::Moose;
 
+use Warg::Mech;
 use Warg::Downloader::Metadata;
-use LWP::Simple qw($ua); # XXX mech?
 
 __PACKAGE__->meta->make_immutable;
 
@@ -50,14 +61,11 @@ sub BUILD {
 sub produce_downloader_from_url {
     my ($self, $url, %args) = @_;
 
-    # mech->get にして、場合によっては downloder が最初のレスポンスを再利用する
-    # という風にするのがいいかも
-
-    my $res = $ua->head($url);
+    $self->mech->get($url);
 
     foreach (sort keys %{ $self->script_metadata }) {
         my $meta = $self->script_metadata->{$_} or next;
-        $meta->handles_res($res) or next;
+        $meta->handles_res($self->mech->response) or next;
 
         return $meta->new_downloader(
             $self->client ? (
@@ -66,6 +74,7 @@ sub produce_downloader_from_url {
                     channel => $args{channel},
                 ),
             ) : (),
+            mech => $self->mech->clone,
             %args,
         );
     }
