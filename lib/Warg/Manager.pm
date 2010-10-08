@@ -1,9 +1,7 @@
 package Warg::Manager;
 use Any::Moose;
 use Any::Moose 'X::Types::Path::Class';
-
-# XXX なぜかここに置くとうまくいく…
-use Warg::Downloader::Interface::Console;
+use Any::Moose '::Util::TypeConstraints';
 
 with 'Warg::Role::Log';
 
@@ -16,11 +14,13 @@ with 'Warg::Role::Log';
 # - check human input for new download
 # - produce downloader session
 
+require Warg::Role::Interface;
+
 has interface => (
-    is  => 'rw',
-    isa => 'Warg::Role::Interface',
+    is   => 'rw',
+    # does => 'Warg::Role::Interface', # does not work on Mouse
     default => sub {
-        # require Warg::Downloader::Interface::Console; # XXX なぜか require だとうまくいかない…
+        require Warg::Downloader::Interface::Console;
         return  Warg::Downloader::Interface::Console->new;
     },
 );

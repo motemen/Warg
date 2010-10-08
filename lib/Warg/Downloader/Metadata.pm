@@ -9,9 +9,9 @@ has script => (
     required => 1,
 );
 
-has http_config => (
+has config => (
     is  => 'rw',
-    # isa => 'Maybe[HTTP::Config]',
+    isa => 'Warg::Downloader::Config',
 );
 
 has code => (
@@ -43,7 +43,9 @@ sub BUILD {
 
     my ($pkg, $sub) = $self->_eval_script;
     $self->{code} = $sub;
-    $self->{http_config} = do { no strict 'refs'; ${"$pkg\::Config"} };
+
+    my $config = do { no strict 'refs'; ${"$pkg\::Config"} };
+    $self->{config} = Warg::Downloader::Config->new($config);
 }
 
 # TODO HTTP::Config 微妙に使いづらいのでなんぞ適当に
@@ -65,6 +67,34 @@ sub new_downloader {
         %args,
         code => $self->code,
     );
+}
+
+package Warg::Downloader::Config;
+use Any::Moose;
+
+has regexp      => ( is => 'rw', isa => 'RegexpRef' );
+has http_config => ( is => 'rw', isa => 'HTTP::Config' );
+
+sub BUILDARGS {
+    my ($class, @args) = @_;
+
+    if (@args == 1) {
+        if (ref $args[0] eq 'Regexp') {
+            return { regexp => $args[0] };
+        } elsif (ref $args[0] eq 'HTTP::Config') {
+            return { http_config => $args[0] };
+        }
+    }
+}
+
+sub handles_res {
+    my ($self, $res) = @_;
+
+    if ($self->regexp) {
+        return $res->base =~ $self->http_config;
+    } elsif ($self->http_config) {
+        return $self->http_config->matching($res);
+    }
 }
 
 1;
