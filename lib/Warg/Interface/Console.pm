@@ -1,4 +1,4 @@
-package Warg::Downloader::Interface::Console;
+package Warg::Interface::Console;
 use Any::Moose;
 
 with 'Warg::Role::Interface';
@@ -31,6 +31,7 @@ sub interact {
     local $| = 1;
     while () {
         print 'warg> ';
+
         Coro::AnyEvent::readable *STDIN;
         my $line = <STDIN>;
         last unless defined $line;

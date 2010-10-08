@@ -1,7 +1,7 @@
-#!/usr/local/bin/perl
+#!/usr/bin/env perl
 use strict;
 use warnings;
 use lib 'lib';
-use Warg::CLI;
+use Warg;
 
-Warg::CLI->new_with_options->run;
+Warg->new_with_options->run;

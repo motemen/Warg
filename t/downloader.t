@@ -4,7 +4,7 @@ use Test::More;
 use Test::Deep;
 use t::Warg::MockLWP;
 
-use Warg::Downloader::Interface::Code;
+use Warg::Interface::Code;
 use URI::Escape qw(uri_unescape);
 use Coro;
 
@@ -15,12 +15,12 @@ sub HTTP::Message::parsed_content {
     return +{ map { $_->[0] => uri_unescape $_->[1] } map { [ split /=/, $_, 2 ] } split /&/, $self->content };
 }
 
-my $interface = Warg::Downloader::Interface::Code->new(
+my $interface = Warg::Interface::Code->new(
     say => sub { shift; note @_ },
     ask => sub { return 'DLKEY' }
 );
 my $downloader = Warg::Downloader->from_script(
-    'downloader/sn-uploader.pl', (
+    'scripts/sn-uploader.pl', (
         interface => $interface,
         log_level => 'emerg',
     )

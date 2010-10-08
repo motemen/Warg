@@ -1,8 +1,85 @@
 package Warg;
-use strict;
-use warnings;
+use Any::Moose;
+
+with any_moose 'X::Getopt::Strict';
 
 our $VERSION = '0.01';
+
+# is
+# - warg main
+# has
+# - downloader manager
+# - interface
+# - logger
+# does
+# - setup components from command args
+# - run everything
+
+has manager => (
+    is  => 'rw',
+    isa => 'Warg::Manager',
+    lazy_build => 1,
+);
+
+sub _build_manager {
+    my $self = shift;
+    return Warg::Manager->new(
+        interface => $self->interface,
+        $self->scripts_dir ? ( scripts_dir => $self->scripts_dir ) : (),
+    );
+}
+
+has interface => (
+    is => 'rw',
+    lazy_build => 1,
+);
+
+sub _build_interface {
+    my $self = shift;
+
+    my $interface_class = 'Warg::Interface::' . $self->interface_class;
+    $interface_class->require or die "Could not require $interface_class";
+
+    Getopt::Long::Configure('no_pass_through');
+
+    local @ARGV = @{ $self->extra_argv };
+    return $interface_class->new_with_options;
+}
+
+# --scripts ./scripts
+has scripts_dir => (
+    is  => 'rw',
+    isa => 'Str',
+    metaclass => 'Getopt',
+    cmd_flag  => 'scripts',
+);
+
+# --interface IRC
+has interface_class => (
+    is  => 'rw',
+    isa => 'Str',
+    metaclass   => 'Getopt',
+    default     => 'Console',
+    cmd_flag    => 'interface',
+    cmd_aliases => [ 'i' ],
+);
+
+no Any::Moose;
+
+__PACKAGE__->meta->make_immutable;
+
+use Warg::Manager;
+
+use Getopt::Long;
+use Getopt::Long::Descriptive;
+use UNIVERSAL::require;
+
+Getopt::Long::Configure('pass_through');
+
+sub run {
+    my $self = shift;
+    $self->manager->start_interactive;
+}
 
 1;
 
@@ -10,15 +87,20 @@ __END__
 
 =head1 NAME
 
-Warg -
+Warg - Downloader
 
 =head1 SYNOPSIS
 
   use Warg;
+  Warg->new_with_options->run;
+
+  ./warg.pl # implies --interface Console
+
+  ./warg.pl --scripts ./scripts -i IRC --server localhost:6667
 
 =head1 DESCRIPTION
 
-Warg is
+Warg is a downloader extensible by scripts.
 
 =head1 AUTHOR
 

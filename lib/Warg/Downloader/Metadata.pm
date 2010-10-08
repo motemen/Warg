@@ -51,14 +51,8 @@ sub BUILD {
 # TODO HTTP::Config 微妙に使いづらいのでなんぞ適当に
 sub handles_res {
     my ($self, $res) = @_;
-
-    return 0 unless $self->http_config;
-
-    if (ref $self->http_config eq 'HTTP::Config') {
-        return $self->http_config->matching($res);
-    } elsif (ref $self->http_config eq 'Regexp') {
-        return $res->base =~ $self->http_config;
-    }
+    return 0 unless $self->config;
+    return $self->config->handles_res($res);
 }
 
 sub new_downloader {

@@ -37,11 +37,10 @@ has mech => (
 );
 
 has interface => (
-    is  => 'rw',
-    isa => 'Warg::Role::Interface',
+    is => 'rw',
     default => sub {
-        require Warg::Downloader::Interface::Console;
-        return  Warg::Downloader::Interface::Console->new;
+        require Warg::Interface::Console;
+        return  Warg::Interface::Console->new;
     },
 );
 
@@ -94,8 +93,6 @@ sub log_name {
     return "Downloader[$_[0]{id}]";
 }
 
-# ほんとうは $sef->log するときに $self->interface->say するようにしたい
-# TODO Log::Handler::Output::Warg::Downloader::Interface?
 sub say {
     my ($self, @args) = @_;
     $self->log(notice => @args);

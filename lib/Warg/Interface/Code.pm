@@ -1,4 +1,4 @@
-package Warg::Downloader::Interface::Code;
+package Warg::Interface::Code;
 use Any::Moose;
 
 with 'Warg::Role::Interface';

@@ -1,7 +1,6 @@
 package Warg::Manager;
 use Any::Moose;
 use Any::Moose 'X::Types::Path::Class';
-use Any::Moose '::Util::TypeConstraints';
 
 with 'Warg::Role::Log';
 
@@ -14,23 +13,16 @@ with 'Warg::Role::Log';
 # - check human input for new download
 # - produce downloader session
 
-require Warg::Role::Interface;
-
 has interface => (
-    is   => 'rw',
-    # does => 'Warg::Role::Interface', # does not work on Mouse
-    default => sub {
-        require Warg::Downloader::Interface::Console;
-        return  Warg::Downloader::Interface::Console->new;
-    },
+    is => 'rw',
 );
 
-has downloader_dir => (
+has scripts_dir => (
     is  => 'rw',
     isa => 'Path::Class::Dir',
     coerce   => 1,
     required => 1,
-    default  => './downloader',
+    default  => './scripts',
 );
 
 has script_metadata => (
@@ -52,6 +44,8 @@ sub _build_mech {
 
 no Any::Moose;
 
+__PACKAGE__->meta->make_immutable;
+
 use Warg::Mech;
 use Warg::Downloader::Metadata;
 use Coro;
@@ -59,12 +53,10 @@ use Regexp::Common qw(URI);
 
 our $RE_HTTP = $RE{URI}{HTTP}{ -scheme => 'https?' };
 
-__PACKAGE__->meta->make_immutable;
-
 sub BUILD {
     my $self = shift;
 
-    foreach (grep { $_->basename =~ /\.pl$/ }  $self->downloader_dir->children) {
+    foreach (grep { $_->basename =~ /\.pl$/ }  $self->scripts_dir->children) {
         $self->log(info => "loading metadata of $_");
         $self->script_metadata->{$_} = Warg::Downloader::Metadata->new(script => $_);
     }
@@ -80,8 +72,8 @@ sub produce_downloader_from_url {
         $meta->handles_res($self->mech->response) or next;
 
         return $meta->new_downloader(
-            interface => $self->interface,
             mech => $self->mech->clone,
+            $self->interface ? ( interface => $self->interface ) : (),
             %args,
         );
     }
