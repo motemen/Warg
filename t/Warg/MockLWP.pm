@@ -14,12 +14,17 @@ no warnings 'redefine';
 
     note '[MockLWP] ' . $request->method . ' ' . $request->uri;
 
-    my $file = $request->uri;
-    $file =~ s<^https?://><>;
-    $file =~ s</><\$>g;
-    $file = "t/samples/http/$file";
+    my $base = $request->uri;
+    $base =~ s<^https?://><>;
+    $base =~ s</><\$>g;
+    $base =~ s<\?><\$>g;
 
-    open my $fh, '<', $file;
+    my $file = 't/samples/http/' . $request->method . '_' . $base;
+    if (!-r $file) {
+        $file = 't/samples/http/' . $base;
+    }
+
+    open my $fh, '<', $file or die $!;
 
     require HTTP::Response;
 

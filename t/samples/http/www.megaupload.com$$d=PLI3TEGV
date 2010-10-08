@@ -1,0 +1,811 @@
+HTTP/1.1 200 OK
+Date: Fri, 08 Oct 2010 13:24:18 GMT
+Server: Apache
+Vary: Accept-Encoding
+Transfer-Encoding: chunked
+Content-Type: text/html
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<link rel="icon" href="http://wwwstatic.megaupload.com/gui2/icomu.ico" type="image/x-icon">
+<link rel="shortcut icon" href="http://wwwstatic.megaupload.com/gui2/icomu.ico" type="image/x-icon">
+<HEAD>
+<TITLE> MEGAUPLOAD - The leading online storage and file delivery service</TITLE>
+
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+
+
+<style type="text/css">
+body 
+{
+	text-align:center;
+	padding:0; margin:0;
+	background-image:url('http://wwwstatic.megaupload.com/gui2/bg.gif');
+	font-family: arial;
+	font-size: 11px;
+	text-align: left;
+}
+
+table
+{
+  font-family:arial;
+}
+
+#main 
+{
+	width:994px;
+	position: relative;
+	margin-top:0px;
+	text-align:left;
+}
+a
+{
+color: #FD6802;
+font-family:arial;
+
+}
+</style>
+
+
+</HEAD>
+
+
+
+
+
+<script type="text/javascript" src="http://wwwstatic.megaupload.com/js/detectflash.js"></script>
+<script type="text/javascript" src="http://wwwstatic.megaupload.com/js/flashobject.js"></script>
+
+
+<script type="text/javascript">
+var hasFlash = true;
+</script>
+
+
+
+
+<script language="JavaScript" type="text/javascript">
+
+
+fadedout = 0;
+
+
+
+function selectLang(idx) {
+   var locale = locales[idx];
+   collapseLandLangPulldown();
+   changelang(idx);
+}
+
+function hiLight(langImg, idx, over) {
+   langImg.src = (over) ? langOverImgs[idx].src : langImgs[idx].src;
+}
+
+function createTooltip(id) {
+   var tt = document.createElement("DIV");
+   tt.id = id;
+   tt.style.border='none';
+   tt.style.position='absolute';
+   document.body.appendChild(tt);
+   return tt;
+}
+
+function findPos(obj) {
+	var curleft = 0;
+    var curtop = 0;
+	if (obj.offsetParent) {
+		curleft = obj.offsetLeft
+		curtop = obj.offsetTop
+		while (obj = obj.offsetParent) {
+			curleft += obj.offsetLeft
+			curtop += obj.offsetTop
+		}
+	}
+    return [curleft,curtop];
+}
+
+function getLangPulldownMenu(img) {
+    var pdDiv = createTooltip('langselection');
+    var top = img.clientY;
+    var pos = findPos(img);
+    pdDiv.style.left = (pos[0] + 3) + 'px';
+    pdDiv.style.top = (pos[1]+ 21) + 'px';
+    return pdDiv;
+}
+
+function runLangPulldown(img) {
+    var langPulldown = document.getElementById('langselection');
+    if (langPulldown != null) {
+        collapseLandLangPulldown()
+    }
+    else {
+        expandLangPulldown(img);
+    }
+}
+
+function collapseLandLangPulldown() {
+    var langPulldown = document.getElementById('langselection');
+    if (langPulldown != null) {
+        langPulldown.style.visibility='hidden';
+        document.body.removeChild(langPulldown);
+        langPulldown = null;
+    }
+}
+
+function expandLangPulldown(img) {
+    var langPulldown = getLangPulldownMenu(img);
+    langPulldown.innerHTML=getPulldownHTML();
+    langPulldown.style.visibility='visible';
+}
+
+function getPulldownHTML() 
+{
+    var pulldownHTML = '<table cellpadding="0" cellspacing="0" border="0" id="langSelection" class="lang_pulldown">';
+	    pulldownHTML = pulldownHTML.concat('<tr class="lang_pulldown">');
+    pulldownHTML = pulldownHTML.concat('<td class="lang_pulldown"><img src="http://wwwstatic.megaupload.com/gui2/language_object/en.gif" border="0" width="129" height="25" onclick="javascript:selectLang(0)" onMouseOut="javascript:hiLight(this, 0, false)" onMouseOver="javascript:hiLight(this, 0, true)"/></td>');
+    pulldownHTML = pulldownHTML.concat('</tr>');
+	    pulldownHTML = pulldownHTML.concat('<tr class="lang_pulldown">');
+    pulldownHTML = pulldownHTML.concat('<td class="lang_pulldown"><img src="http://wwwstatic.megaupload.com/gui2/language_object/de.gif" border="0" width="129" height="21" onclick="javascript:selectLang(1)" onMouseOut="javascript:hiLight(this, 1, false)" onMouseOver="javascript:hiLight(this, 1, true)"/></td>');
+    pulldownHTML = pulldownHTML.concat('</tr>');
+	    pulldownHTML = pulldownHTML.concat('<tr class="lang_pulldown">');
+    pulldownHTML = pulldownHTML.concat('<td class="lang_pulldown"><img src="http://wwwstatic.megaupload.com/gui2/language_object/fr.gif" border="0" width="129" height="21" onclick="javascript:selectLang(2)" onMouseOut="javascript:hiLight(this, 2, false)" onMouseOver="javascript:hiLight(this, 2, true)"/></td>');
+    pulldownHTML = pulldownHTML.concat('</tr>');
+	    pulldownHTML = pulldownHTML.concat('<tr class="lang_pulldown">');
+    pulldownHTML = pulldownHTML.concat('<td class="lang_pulldown"><img src="http://wwwstatic.megaupload.com/gui2/language_object/es.gif" border="0" width="129" height="21" onclick="javascript:selectLang(3)" onMouseOut="javascript:hiLight(this, 3, false)" onMouseOver="javascript:hiLight(this, 3, true)"/></td>');
+    pulldownHTML = pulldownHTML.concat('</tr>');
+	    pulldownHTML = pulldownHTML.concat('<tr class="lang_pulldown">');
+    pulldownHTML = pulldownHTML.concat('<td class="lang_pulldown"><img src="http://wwwstatic.megaupload.com/gui2/language_object/pt.gif" border="0" width="129" height="21" onclick="javascript:selectLang(4)" onMouseOut="javascript:hiLight(this, 4, false)" onMouseOver="javascript:hiLight(this, 4, true)"/></td>');
+    pulldownHTML = pulldownHTML.concat('</tr>');
+	    pulldownHTML = pulldownHTML.concat('<tr class="lang_pulldown">');
+    pulldownHTML = pulldownHTML.concat('<td class="lang_pulldown"><img src="http://wwwstatic.megaupload.com/gui2/language_object/nl.gif" border="0" width="129" height="21" onclick="javascript:selectLang(5)" onMouseOut="javascript:hiLight(this, 5, false)" onMouseOver="javascript:hiLight(this, 5, true)"/></td>');
+    pulldownHTML = pulldownHTML.concat('</tr>');
+	    pulldownHTML = pulldownHTML.concat('<tr class="lang_pulldown">');
+    pulldownHTML = pulldownHTML.concat('<td class="lang_pulldown"><img src="http://wwwstatic.megaupload.com/gui2/language_object/it.gif" border="0" width="129" height="21" onclick="javascript:selectLang(6)" onMouseOut="javascript:hiLight(this, 6, false)" onMouseOver="javascript:hiLight(this, 6, true)"/></td>');
+    pulldownHTML = pulldownHTML.concat('</tr>');
+	    pulldownHTML = pulldownHTML.concat('<tr class="lang_pulldown">');
+    pulldownHTML = pulldownHTML.concat('<td class="lang_pulldown"><img src="http://wwwstatic.megaupload.com/gui2/language_object/cn.gif" border="0" width="129" height="21" onclick="javascript:selectLang(7)" onMouseOut="javascript:hiLight(this, 7, false)" onMouseOver="javascript:hiLight(this, 7, true)"/></td>');
+    pulldownHTML = pulldownHTML.concat('</tr>');
+	    pulldownHTML = pulldownHTML.concat('<tr class="lang_pulldown">');
+    pulldownHTML = pulldownHTML.concat('<td class="lang_pulldown"><img src="http://wwwstatic.megaupload.com/gui2/language_object/ct.gif" border="0" width="129" height="21" onclick="javascript:selectLang(8)" onMouseOut="javascript:hiLight(this, 8, false)" onMouseOver="javascript:hiLight(this, 8, true)"/></td>');
+    pulldownHTML = pulldownHTML.concat('</tr>');
+	    pulldownHTML = pulldownHTML.concat('<tr class="lang_pulldown">');
+    pulldownHTML = pulldownHTML.concat('<td class="lang_pulldown"><img src="http://wwwstatic.megaupload.com/gui2/language_object/jp.gif" border="0" width="129" height="21" onclick="javascript:selectLang(9)" onMouseOut="javascript:hiLight(this, 9, false)" onMouseOver="javascript:hiLight(this, 9, true)"/></td>');
+    pulldownHTML = pulldownHTML.concat('</tr>');
+	    pulldownHTML = pulldownHTML.concat('<tr class="lang_pulldown">');
+    pulldownHTML = pulldownHTML.concat('<td class="lang_pulldown"><img src="http://wwwstatic.megaupload.com/gui2/language_object/kr.gif" border="0" width="129" height="21" onclick="javascript:selectLang(10)" onMouseOut="javascript:hiLight(this, 10, false)" onMouseOver="javascript:hiLight(this, 10, true)"/></td>');
+    pulldownHTML = pulldownHTML.concat('</tr>');
+	    pulldownHTML = pulldownHTML.concat('<tr class="lang_pulldown">');
+    pulldownHTML = pulldownHTML.concat('<td class="lang_pulldown"><img src="http://wwwstatic.megaupload.com/gui2/language_object/ru.gif" border="0" width="129" height="21" onclick="javascript:selectLang(11)" onMouseOut="javascript:hiLight(this, 11, false)" onMouseOver="javascript:hiLight(this, 11, true)"/></td>');
+    pulldownHTML = pulldownHTML.concat('</tr>');
+	    pulldownHTML = pulldownHTML.concat('<tr class="lang_pulldown">');
+    pulldownHTML = pulldownHTML.concat('<td class="lang_pulldown"><img src="http://wwwstatic.megaupload.com/gui2/language_object/fi.gif" border="0" width="129" height="21" onclick="javascript:selectLang(12)" onMouseOut="javascript:hiLight(this, 12, false)" onMouseOver="javascript:hiLight(this, 12, true)"/></td>');
+    pulldownHTML = pulldownHTML.concat('</tr>');
+	    pulldownHTML = pulldownHTML.concat('<tr class="lang_pulldown">');
+    pulldownHTML = pulldownHTML.concat('<td class="lang_pulldown"><img src="http://wwwstatic.megaupload.com/gui2/language_object/se.gif" border="0" width="129" height="21" onclick="javascript:selectLang(13)" onMouseOut="javascript:hiLight(this, 13, false)" onMouseOver="javascript:hiLight(this, 13, true)"/></td>');
+    pulldownHTML = pulldownHTML.concat('</tr>');
+	    pulldownHTML = pulldownHTML.concat('<tr class="lang_pulldown">');
+    pulldownHTML = pulldownHTML.concat('<td class="lang_pulldown"><img src="http://wwwstatic.megaupload.com/gui2/language_object/dk.gif" border="0" width="129" height="21" onclick="javascript:selectLang(14)" onMouseOut="javascript:hiLight(this, 14, false)" onMouseOver="javascript:hiLight(this, 14, true)"/></td>');
+    pulldownHTML = pulldownHTML.concat('</tr>');
+	    pulldownHTML = pulldownHTML.concat('<tr class="lang_pulldown">');
+    pulldownHTML = pulldownHTML.concat('<td class="lang_pulldown"><img src="http://wwwstatic.megaupload.com/gui2/language_object/tr.gif" border="0" width="129" height="21" onclick="javascript:selectLang(15)" onMouseOut="javascript:hiLight(this, 15, false)" onMouseOver="javascript:hiLight(this, 15, true)"/></td>');
+    pulldownHTML = pulldownHTML.concat('</tr>');
+	    pulldownHTML = pulldownHTML.concat('<tr class="lang_pulldown">');
+    pulldownHTML = pulldownHTML.concat('<td class="lang_pulldown"><img src="http://wwwstatic.megaupload.com/gui2/language_object/sa.gif" border="0" width="129" height="21" onclick="javascript:selectLang(16)" onMouseOut="javascript:hiLight(this, 16, false)" onMouseOver="javascript:hiLight(this, 16, true)"/></td>');
+    pulldownHTML = pulldownHTML.concat('</tr>');
+	    pulldownHTML = pulldownHTML.concat('<tr class="lang_pulldown">');
+    pulldownHTML = pulldownHTML.concat('<td class="lang_pulldown"><img src="http://wwwstatic.megaupload.com/gui2/language_object/vn.gif" border="0" width="129" height="21" onclick="javascript:selectLang(17)" onMouseOut="javascript:hiLight(this, 17, false)" onMouseOver="javascript:hiLight(this, 17, true)"/></td>');
+    pulldownHTML = pulldownHTML.concat('</tr>');
+	    pulldownHTML = pulldownHTML.concat('<tr class="lang_pulldown">');
+    pulldownHTML = pulldownHTML.concat('<td class="lang_pulldown"><img src="http://wwwstatic.megaupload.com/gui2/language_object/pl.gif" border="0" width="129" height="21" onclick="javascript:selectLang(18)" onMouseOut="javascript:hiLight(this, 18, false)" onMouseOver="javascript:hiLight(this, 18, true)"/></td>');
+    pulldownHTML = pulldownHTML.concat('</tr>');
+	
+    return pulldownHTML;
+}
+
+function autoSenseLang() {
+    try {
+        var url = window.location.href;
+        var locale = getLocale();
+        if (undefined == locale) {
+            return;
+        }
+        if ('en_US' != locale && url.indexOf('/' + locale + '/') == -1) {
+            window.location.href = '/' + locale;
+        }
+    }
+    catch (error) {
+        ;
+    }
+}
+
+function getLangFromURL() {
+    var url = window.location.href;
+    var lang = locales[0];
+    for (var i=1; i < locales.length; i++) {
+        if (url.indexOf('/' + locales[i] + '/') != -1) {
+            lang = locales[i];
+            break;
+        }
+    }
+    return lang;
+}
+
+function getUnique(max) {
+    var now = new Date();
+    return (now.getMilliseconds() * Math.floor(Math.random()*max+1));
+}
+
+function isWin() {
+    return (navigator.platform.indexOf('Win') != -1);
+}
+
+function isVista() {
+    return (navigator.userAgent.indexOf("Windows NT 6.0") != -1);
+}
+
+function isMac() {
+    return (navigator.platform.indexOf('Mac') != -1);
+}
+
+function isLinux() {
+    return (navigator.platform.indexOf('Linux') != -1);
+}
+
+
+function changelang(id)
+{
+		if (id == 0)
+		{
+			document.location = '?d=PLI3TEGV&setlang=en';
+		}
+		if (id == 1)
+		{
+			document.location = '?d=PLI3TEGV&setlang=de';
+		}
+		if (id == 2)
+		{
+			document.location = '?d=PLI3TEGV&setlang=fr';
+		}
+		if (id == 3)
+		{
+			document.location = '?d=PLI3TEGV&setlang=es';
+		}
+		if (id == 4)
+		{
+		document.location = '?d=PLI3TEGV&setlang=pt';
+		}
+		if (id == 5)
+		{
+			document.location = '?d=PLI3TEGV&setlang=nl';
+		}
+		if (id == 6)
+		{
+			document.location = '?d=PLI3TEGV&setlang=it';
+		}
+		if (id == 7)
+		{
+			document.location = '?d=PLI3TEGV&setlang=cn';
+		}
+		if (id == 8)
+		{
+			document.location = '?d=PLI3TEGV&setlang=ct';
+		}
+		if (id == 9)
+		{
+			document.location = '?d=PLI3TEGV&setlang=jp';
+		}
+		if (id == 10)
+		{
+			document.location = '?d=PLI3TEGV&setlang=kr';
+		}
+		if (id == 11)
+		{
+			document.location = '?d=PLI3TEGV&setlang=ru';
+		}
+		if (id == 12)
+		{
+			document.location = '?d=PLI3TEGV&setlang=fi';
+		}
+		if (id == 13)
+		{
+			document.location = '?d=PLI3TEGV&setlang=se';
+		}
+		if (id == 14)
+		{
+			document.location = '?d=PLI3TEGV&setlang=dk';
+		}
+		if (id == 15)
+		{
+			document.location = '?d=PLI3TEGV&setlang=tr';
+		}
+		if (id == 16)
+		{
+			document.location = '?d=PLI3TEGV&setlang=sa';
+		}
+		if (id == 17)
+		{
+			document.location = '?d=PLI3TEGV&setlang=vn';
+		}
+		if (id == 18)
+		{
+			document.location = '?d=PLI3TEGV&setlang=pl';
+		}
+}
+
+
+
+function addCacheBreakerToURL(url) {
+    var ran_number= getUnique(8);
+    var firstLetter = (url.indexOf('?')<0) ? '?' : '&';
+    return url + firstLetter + 'bznetid=' + ran_number;
+}
+
+
+function logout()
+{
+  document.getElementById('logoutform').submit();
+}
+
+
+function resizing()
+{
+   if (fadedout == 1)
+   {
+	 resizefading();
+   }
+}
+
+function fadeout(mode)
+{
+  if (mode == 1)
+  {
+	// turn on
+    resizefading();
+	fadedout=1;
+	changeOpac(0,'dimlights1');
+	document.getElementById('dimlights1').style.display = '';
+	opacity('dimlights1', 0, 55, 1500);
+
+  }
+  else
+  {
+	// turn off
+	opacity('dimlights1', 55, 0, 200);
+	setTimeout("document.getElementById('dimlights1').style.display='none';",200);
+	fadedout=0;
+  }
+}
+
+function opacity(id, opacStart, opacEnd, millisec) { 
+    //speed for each frame 
+    var speed = Math.round(millisec / 100); 
+    var timer = 0; 
+
+    //determine the direction for the blending, if start and end are the same nothing happens 
+    if(opacStart > opacEnd) { 
+        for(i = opacStart; i >= opacEnd; i--) { 
+            setTimeout("changeOpac(" + i + ",'" + id + "')",(timer * speed)); 
+            timer++; 
+        } 
+    } else if(opacStart < opacEnd) { 
+        for(i = opacStart; i <= opacEnd; i++) 
+            { 
+            setTimeout("changeOpac(" + i + ",'" + id + "')",(timer * speed)); 
+            timer++; 
+        } 
+    } 
+} 
+
+//change the opacity for different browsers 
+function changeOpac(opacity, id) { 
+    var object = document.getElementById(id).style; 
+    object.opacity = (opacity / 100); 
+    object.MozOpacity = (opacity / 100); 
+    object.KhtmlOpacity = (opacity / 100); 
+    object.filter = "alpha(opacity=" + opacity + ")"; 
+} 
+
+function resizefading()
+{
+  document.getElementById('dimlights1').style.width  = document.body.clientWidth;
+  document.getElementById('dimlights1').style.height = document.body.clientHeight;
+  if (document.body.clientWidth > 990)
+  {
+    document.getElementById('dimlights1').style.left   = -(document.body.clientWidth-990)/2;
+  }
+}
+
+
+
+</script>
+
+
+
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+var pageTracker = _gat._getTracker("UA-6383685-1");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+
+
+<BODY >
+
+
+<center>
+
+
+
+
+
+<div id="main">
+
+
+
+
+<div style="position:relative; width:980px; height:85px;">
+
+
+<div style="position:absolute; left:5px; top:6px;"><a href="?"><IMG SRC="http://wwwstatic.megaupload.com/gui2/logo.gif" WIDTH="338" HEIGHT="38" BORDER="0" ALT=""></a></div>
+
+
+
+
+
+
+
+<div style="position:absolute; width:250px; height:18px; top:17px; left:570px; text-align:right; font-family:arial; font-size:12px;">
+<a href="?c=login&next=d%3DPLI3TEGV" style="color:#000000;">Login</a> &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; <a href="?c=signup" style="color:#000000;">Register</a>
+</div>
+
+
+
+
+
+<script language="JavaScript" type="text/javascript">
+
+var MenuImgs = new Array(7);
+var MImgs = new Array(7);
+
+MImgs[0]		= new Image(184, 32);
+MenuImgs[0]		= new Image(184, 32);
+MenuImgs[0].src = "http://wwwstatic.megaupload.com/gui2/menu/en/menuo_01.gif";
+MImgs[1]		= new Image(130, 32);
+MenuImgs[1]		= new Image(130, 32);
+MenuImgs[1].src = "http://wwwstatic.megaupload.com/gui2/menu/en/menuo_02.gif";
+MImgs[2]		= new Image(126, 32);
+MenuImgs[2]		= new Image(126, 32);
+MenuImgs[2].src = "http://wwwstatic.megaupload.com/gui2/menu/en/menuo_03.gif";
+MImgs[3]		= new Image(122, 32);
+MenuImgs[3]		= new Image(122, 32);
+MenuImgs[3].src = "http://wwwstatic.megaupload.com/gui2/menu/en/menuo_04.gif";
+MImgs[4]		= new Image(149, 32);
+MenuImgs[4]		= new Image(149, 32);
+MenuImgs[4].src = "http://wwwstatic.megaupload.com/gui2/menu/en/menuo_05.gif";
+MImgs[5]		= new Image(146, 32);
+MenuImgs[5]		= new Image(146, 32);
+MenuImgs[5].src = "http://wwwstatic.megaupload.com/gui2/menu/en/menuo_06.gif";
+MImgs[6]		= new Image(133, 32);
+MenuImgs[6]		= new Image(133, 32);
+MenuImgs[6].src = "http://wwwstatic.megaupload.com/gui2/menu/en/menuo_07.gif";
+</script>
+
+<div style="position:absolute; left:0px; top:49px;">
+<TABLE cellpadding="0" cellspacing="0">
+<TR>
+	<TD><a href="?c=signup"><IMG SRC="http://wwwstatic.megaupload.com/gui2/menu/en/menu_01.gif" WIDTH="184" HEIGHT="32" BORDER="0" ALT="" onmouseover="MImgs[0].src=this.src; this.src=MenuImgs[0].src;" onmouseout="this.src=MImgs[0].src;"></a></TD>
+	<TD><a href="?c=premium"><IMG SRC="http://wwwstatic.megaupload.com/gui2/menu/en/menu_02.gif" WIDTH="130" HEIGHT="32" BORDER="0" ALT="" onmouseover="MImgs[1].src=this.src; this.src=MenuImgs[1].src;" onmouseout="this.src=MImgs[1].src;"></a></TD>
+	<TD><a href="?c=rewards"><IMG SRC="http://wwwstatic.megaupload.com/gui2/menu/en/menu_03.gif" WIDTH="126" HEIGHT="32" BORDER="0" ALT="" onmouseover="MImgs[2].src=this.src; this.src=MenuImgs[2].src;" onmouseout="this.src=MImgs[2].src;"></a></TD>
+	<TD><a href="?c=top100"><IMG SRC="http://wwwstatic.megaupload.com/gui2/menu/en/menu_04.gif" WIDTH="122" HEIGHT="32" BORDER="0" ALT="" onmouseover="MImgs[3].src=this.src; this.src=MenuImgs[3].src;" onmouseout="this.src=MImgs[3].src;"></a></TD>
+	<TD><a href="?c=tools"><IMG SRC="http://wwwstatic.megaupload.com/gui2/menu/en/menu_05.gif" WIDTH="149" HEIGHT="32" BORDER="0" ALT="" onmouseover="MImgs[4].src=this.src; this.src=MenuImgs[4].src;" onmouseout="this.src=MImgs[4].src;"></a></TD>
+	<TD><a href="?c=support"><IMG SRC="http://wwwstatic.megaupload.com/gui2/menu/en/menu_06.gif" WIDTH="146" HEIGHT="32" BORDER="0" ALT="" onmouseover="MImgs[5].src=this.src; this.src=MenuImgs[5].src;" onmouseout="this.src=MImgs[5].src;"></a></TD>
+	<TD><a href="?c=faq"><IMG SRC="http://wwwstatic.megaupload.com/gui2/menu/en/menu_07.gif" WIDTH="133" HEIGHT="32" BORDER="0" ALT="" onmouseover="MImgs[6].src=this.src; this.src=MenuImgs[6].src;" onmouseout="this.src=MImgs[6].src;"></a></TD>
+</TR>
+<TR>
+	<TD colspan="7"><IMG SRC="http://wwwstatic.megaupload.com/gui2/menu/shadow.gif" WIDTH="990" HEIGHT="4" BORDER="0" ALT=""></TD>
+</TR>
+</TABLE>
+</div>
+
+
+<script type="text/javascript">
+enlang = new Image(135,28);
+enlangover = new Image(135,28);
+enlangover.src = 'http://wwwstatic.megaupload.com/gui2/language_object/lang_o.gif';
+</script>
+
+
+<div style="position:absolute; left:853px; top:10px;">
+<table  border="0" cellspacing="0" cellpadding="1">
+  <tr>
+	<td width="140"><table width="100" border="0" align="right" cellpadding="1" cellspacing="0">
+		<tr bgcolor="">
+		  <td width="125"><img src="http://wwwstatic.megaupload.com/gui2/language_object/en_a.gif" alt="language" width="135" height="28" border="0" id="selectedLangImg" onclick="javascript:runLangPulldown(this)" onmouseover="enlang.src=this.src; this.src=enlangover.src;" onmouseout="this.src=enlang.src;"/></td>
+		</tr>
+	  </table>
+	  </td>
+  </tr>
+</table>
+</div>
+</div>
+
+
+
+
+<div style="position:relative; ">
+
+
+<div style="position:relative; width:990px; height:134px;">
+
+
+<div style="position:absolute; left:3px; top:-4px; width:984px; height:133px; background-image:url('http://wwwstatic.megaupload.com/gui2/download.jpg');"></div>
+
+
+
+
+
+
+	<div style="position:absolute; top:0px; left:25px; width:450px;">
+	<TABLE height="125">
+	<TR>
+		<TD valign="middle" align="left" width="500">
+		<font style="font-family:arial; color:#000000; font-size:18px; font-weight:bold;">Filename:</font> <font style="font-family:arial; color:#FF6700; font-size:22px; font-weight:bold;">lena.tif</font><br>
+		<font style="font-family:arial; color:#000000; font-size:13px; font-weight:bold; line-height:22px;">File description:</font> <font style="font-family:arial; color:#000000; font-size:13px;">lena.tif</font><br>
+		<font style="font-family:arial; color:#000000; font-size:13px; font-weight:bold; line-height:22px;">File size:</font> <font style="font-family:arial; color:#000000; font-size:13px;">768.14 KB</font>
+		</TD>
+	</TR>
+		</TABLE>
+	
+
+
+	</div>
+	
+
+	
+
+
+	
+	<script type="text/javascript">
+	
+	function checkcaptcha()
+	{
+	  if (document.getElementById('captchafield').value == '')
+	  {
+	    
+	    alert('Please enter the 4 characters displayed in the "captcha" image and then press "download file".');
+		
+	  }
+	  else
+	  {
+	    document.getElementById('captchaform').submit();
+	  }
+	}
+	
+	
+	button = new Image(259,55);
+	buttonover = new Image(259,55);
+	buttonover.src = 'http://wwwstatic.megaupload.com/gui2/en/but_dnld_file_o.gif';
+
+	</script>
+	<div style="position:absolute; left:703px; top:10px; height:115px;">
+	<TABLE style="font-family:arial; font-size:13px; margin-left:3px;">
+	<FORM method="POST" id="captchaform">
+	<INPUT type="hidden" name="captchacode" value="3352b317b41255667b5b">
+	<INPUT type="hidden" name="megavar" value="aadebad1eafe871d6da26e90dfae1f4b167837d2cc2fea04494e493f9f512f363a4426e54e1e5f071a3d7d45fe3e64bb78d0d3c663ac05dcbbca23d94246998f9df7d3dcfe30e36faa8f0a244cbe30406cbf8b7c930953f8c2572aeaab83e38d5835f5f0c75150e19810ad7ed95dd7792f3ce4d926d938f87bfcb261f91bcb53431f0b9fa1f49683c41b70202c27051434f8ca31a1824c094847c60a720f92ca604cfb607143b1ef5fc975fd2ef8f5dbd9507723a0a29d9e826847a434ea01133320681e7e7838ae100185ff21c4cbfeacd6e9865bac7532478275bed95aec0988f09a6af3274008903b413698a42b11fec4b80a">
+	<TR>
+		<TD>Enter this </TD>
+		<TD width="100" align="center" height="40"><img src="http://wwwq46.megaupload.com/gencap.php?d75ba18c350a26a0.gif" border="0" alt=""></TD>
+		<TD> here:</TD>
+		<TD><input type="text" name="captcha" id="captchafield"  maxlength="4" style="border:solid 1px; border-color:#C4C4C4;  background-color:#F9F9F9; width:50px; height:25px;"></TD>
+	</TR>
+	</FORM>
+	</TABLE>
+	<br>
+	<a href="javascript:checkcaptcha();"><IMG SRC="http://wwwstatic.megaupload.com/gui2/en/but_dnld_file.gif" WIDTH="259" HEIGHT="55" BORDER="0" ALT="" onmouseover="button.src=this.src; this.src=buttonover.src;" onmouseout="this.src=button.src;"></a>
+	</div>
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+
+
+
+</div>
+
+
+<div style="position:relative; height:290px;" id="tabs">
+
+
+
+
+
+<div style="position:absolute; left:1px; top:0px;">
+<iframe src="mc.php?l=en" width="995" height="275" frameborder="0" marginwidth="0" marginheight="0" vspace="0" hspace="0" allowtransparency="true" scrolling="no"></iframe>
+</div>
+
+
+
+</div>
+
+
+</div>
+</div>
+
+
+
+
+
+<div style="position:relative; width:980px; height:30px;">
+<script language="JavaScript" type="text/javascript">
+var BMenuImgs = new Array(5);
+var BMImgs = new Array(5);
+BMImgs[0]			= new Image(132, 27);
+BMenuImgs[0]		= new Image(132, 27);
+BMenuImgs[0].src	= "http://wwwstatic.megaupload.com/gui2/menu/en/bottom_o_02.gif";
+BMImgs[1]			= new Image(106, 27);
+BMenuImgs[1]		= new Image(106, 27);
+BMenuImgs[1].src	= "http://wwwstatic.megaupload.com/gui2/menu/en/bottom_o_03.gif";
+BMImgs[2]			= new Image(92, 27);
+BMenuImgs[2]		= new Image(92, 27);
+BMenuImgs[2].src	= "http://wwwstatic.megaupload.com/gui2/menu/en/bottom_o_04.gif";
+BMImgs[3]			= new Image(107, 27);
+BMenuImgs[3]		= new Image(107, 27);
+BMenuImgs[3].src	= "http://wwwstatic.megaupload.com/gui2/menu/en/bottom_o_05.gif";
+BMImgs[4]			= new Image(123, 27);
+BMenuImgs[4]		= new Image(123, 27);
+BMenuImgs[4].src	= "http://wwwstatic.megaupload.com/gui2/menu/en/bottom_o_06.gif";
+</script>
+
+<div style="position:absolute; left:-2px; top:0px;">
+<TABLE cellpadding="0" cellspacing="0">
+<TR>
+	<TD><IMG SRC="http://wwwstatic.megaupload.com/gui2/menu/2010/en/bottom_01.gif" WIDTH="427" HEIGHT="27" BORDER="0" ALT=""></TD>
+	<TD><a href="http://www.megaclick.com/?c=site_profile&site_id=1" target="_blank"><IMG SRC="http://wwwstatic.megaupload.com/gui2/menu/en/bottom_02.gif" WIDTH="132" HEIGHT="27" BORDER="0" ALT="" onmouseover="BMImgs[0].src=this.src; this.src=BMenuImgs[0].src;" onmouseout="this.src=BMImgs[0].src;"></a></TD>
+	<TD><a href="?c=abuse"><IMG SRC="http://wwwstatic.megaupload.com/gui2/menu/en/bottom_03.gif" WIDTH="106" HEIGHT="27" BORDER="0" ALT="" onmouseover="BMImgs[1].src=this.src; this.src=BMenuImgs[1].src;" onmouseout="this.src=BMImgs[1].src;"></a></TD>
+	<TD><a href="?c=contact"><IMG SRC="http://wwwstatic.megaupload.com/gui2/menu/en/bottom_04.gif" WIDTH="92" HEIGHT="27" BORDER="0" ALT="" onmouseover="BMImgs[2].src=this.src; this.src=BMenuImgs[2].src;" onmouseout="this.src=BMImgs[2].src;"></a></TD>
+	<TD><a href="?c=privacy"><IMG SRC="http://wwwstatic.megaupload.com/gui2/menu/en/bottom_05.gif" WIDTH="107" HEIGHT="27" BORDER="0" ALT="" onmouseover="BMImgs[3].src=this.src; this.src=BMenuImgs[3].src;" onmouseout="this.src=BMImgs[3].src;"></a></TD>
+	<TD><a href="?c=terms"><IMG SRC="http://wwwstatic.megaupload.com/gui2/menu/en/bottom_06.gif" WIDTH="123" HEIGHT="27" BORDER="0" ALT="" onmouseover="BMImgs[4].src=this.src; this.src=BMenuImgs[4].src;" onmouseout="this.src=BMImgs[4].src;"></a></TD>
+</TR>
+</TABLE>
+
+
+</div>
+</div>
+<br><br><br>
+
+
+</div>
+</center>
+
+
+
+<script type="text/javascript">
+
+var langImgs = new Array(19);
+var langOverImgs = new Array(19);
+var langArrowImgs = new Array(19);
+var locales = new Array(19);
+
+langImgs[0] = new Image(129, 25);
+langImgs[0].src="http://wwwstatic.megaupload.com/gui2/language_object/en.gif";
+langOverImgs[0] = new Image(129, 25);
+langOverImgs[0].src="http://wwwstatic.megaupload.com/gui2/language_object/en_o.gif";
+langImgs[1] = new Image(129, 21);
+langImgs[1].src="http://wwwstatic.megaupload.com/gui2/language_object/de.gif";
+langOverImgs[1] = new Image(129, 21);
+langOverImgs[1].src="http://wwwstatic.megaupload.com/gui2/language_object/de_o.gif";
+langImgs[2] = new Image(129, 21);
+langImgs[2].src="http://wwwstatic.megaupload.com/gui2/language_object/fr.gif";
+langOverImgs[2] = new Image(129, 21);
+langOverImgs[2].src="http://wwwstatic.megaupload.com/gui2/language_object/fr_o.gif";
+langImgs[3] = new Image(129, 21);
+langImgs[3].src="http://wwwstatic.megaupload.com/gui2/language_object/es.gif";
+langOverImgs[3] = new Image(129, 21);
+langOverImgs[3].src="http://wwwstatic.megaupload.com/gui2/language_object/es_o.gif";
+langImgs[4] = new Image(129, 21);
+langImgs[4].src="http://wwwstatic.megaupload.com/gui2/language_object/pt.gif";
+langOverImgs[4] = new Image(129, 21);
+langOverImgs[4].src="http://wwwstatic.megaupload.com/gui2/language_object/pt_o.gif";
+langImgs[5] = new Image(129, 21);
+langImgs[5].src="http://wwwstatic.megaupload.com/gui2/language_object/nl.gif";
+langOverImgs[5] = new Image(129, 21);
+langOverImgs[5].src="http://wwwstatic.megaupload.com/gui2/language_object/nl_o.gif";
+langImgs[6] = new Image(129, 21);
+langImgs[6].src="http://wwwstatic.megaupload.com/gui2/language_object/it.gif";
+langOverImgs[6] = new Image(129, 21);
+langOverImgs[6].src="http://wwwstatic.megaupload.com/gui2/language_object/it_o.gif";
+langImgs[7] = new Image(129, 21);
+langImgs[7].src="http://wwwstatic.megaupload.com/gui2/language_object/cn.gif";
+langOverImgs[7] = new Image(129, 21);
+langOverImgs[7].src="http://wwwstatic.megaupload.com/gui2/language_object/cn_o.gif";
+langImgs[8] = new Image(129, 21);
+langImgs[8].src="http://wwwstatic.megaupload.com/gui2/language_object/ct.gif";
+langOverImgs[8] = new Image(129, 21);
+langOverImgs[8].src="http://wwwstatic.megaupload.com/gui2/language_object/ct_o.gif";
+langImgs[9] = new Image(129, 21);
+langImgs[9].src="http://wwwstatic.megaupload.com/gui2/language_object/jp.gif";
+langOverImgs[9] = new Image(129, 21);
+langOverImgs[9].src="http://wwwstatic.megaupload.com/gui2/language_object/jp_o.gif";
+langImgs[10] = new Image(129, 21);
+langImgs[10].src="http://wwwstatic.megaupload.com/gui2/language_object/kr.gif";
+langOverImgs[10] = new Image(129, 21);
+langOverImgs[10].src="http://wwwstatic.megaupload.com/gui2/language_object/kr_o.gif";
+langImgs[11] = new Image(129, 21);
+langImgs[11].src="http://wwwstatic.megaupload.com/gui2/language_object/ru.gif";
+langOverImgs[11] = new Image(129, 21);
+langOverImgs[11].src="http://wwwstatic.megaupload.com/gui2/language_object/ru_o.gif";
+langImgs[12] = new Image(129, 21);
+langImgs[12].src="http://wwwstatic.megaupload.com/gui2/language_object/fi.gif";
+langOverImgs[12] = new Image(129, 21);
+langOverImgs[12].src="http://wwwstatic.megaupload.com/gui2/language_object/fi_o.gif";
+langImgs[13] = new Image(129, 21);
+langImgs[13].src="http://wwwstatic.megaupload.com/gui2/language_object/se.gif";
+langOverImgs[13] = new Image(129, 21);
+langOverImgs[13].src="http://wwwstatic.megaupload.com/gui2/language_object/se_o.gif";
+langImgs[14] = new Image(129, 21);
+langImgs[14].src="http://wwwstatic.megaupload.com/gui2/language_object/dk.gif";
+langOverImgs[14] = new Image(129, 21);
+langOverImgs[14].src="http://wwwstatic.megaupload.com/gui2/language_object/dk_o.gif";
+langImgs[15] = new Image(129, 21);
+langImgs[15].src="http://wwwstatic.megaupload.com/gui2/language_object/tr.gif";
+langOverImgs[15] = new Image(129, 21);
+langOverImgs[15].src="http://wwwstatic.megaupload.com/gui2/language_object/tr_o.gif";
+langImgs[16] = new Image(129, 21);
+langImgs[16].src="http://wwwstatic.megaupload.com/gui2/language_object/sa.gif";
+langOverImgs[16] = new Image(129, 21);
+langOverImgs[16].src="http://wwwstatic.megaupload.com/gui2/language_object/sa_o.gif";
+langImgs[17] = new Image(129, 21);
+langImgs[17].src="http://wwwstatic.megaupload.com/gui2/language_object/vn.gif";
+langOverImgs[17] = new Image(129, 21);
+langOverImgs[17].src="http://wwwstatic.megaupload.com/gui2/language_object/vn_o.gif";
+langImgs[18] = new Image(129, 21);
+langImgs[18].src="http://wwwstatic.megaupload.com/gui2/language_object/pl.gif";
+langOverImgs[18] = new Image(129, 21);
+langOverImgs[18].src="http://wwwstatic.megaupload.com/gui2/language_object/pl_o.gif";
+
+</script>
+
+
+
+<script type="text/javascript" language="javascript1.2"><!--
+EXs=screen;EXw=EXs.width;navigator.appName!="Netscape"?
+EXb=EXs.colorDepth:EXb=EXs.pixelDepth;//-->
+</script><script type="text/javascript"><!--
+navigator.javaEnabled()==1?EXjv="y":EXjv="n";
+EXd=document;EXw?"":EXw="na";EXb?"":EXb="na";
+EXd.write("<img src=\"http://nht-2.extreme-dm.com",
+"/n2.g?login=kimble&amp;pid=main&amp;",
+"jv="+EXjv+"&amp;j=y&amp;srw="+EXw+"&amp;srb="+EXb+"&amp;",
+"l="+escape(EXd.referrer)+"\" height=1 width=1>");//-->
+</script><noscript><img height="1" width="1" alt=""
+src="http://nht-2.extreme-dm.com/n2.g?login=kimble&amp;pid=main&amp;j=n&amp;jv=n"/>
+</noscript>
+
+
+
+
+<!--/* Ad4Game Interstitial or Floating DHTML Tag */-->
+
+<script type='text/javascript'><!--//<![CDATA[
+   var ox_u = 'http://ads.ad4game.com/www/delivery/al.php?zoneid=3896&amp;layerstyle=footer&amp;position=bottom&amp;speed=3&amp;slide=0&amp;delay=2&amp;ahere=f&amp;transparent=t';
+   if (document.context) ox_u += '&context=' + escape(document.context);
+   document.write("<scr"+"ipt type='text/javascript' src='" + ox_u + "'></scr"+"ipt>");
+//]]>--></script>
+
+
+
+
+</BODY>
+</HTML>
