@@ -113,7 +113,7 @@ sub on_debug_recv {
 
 sub on_error {
     my ($self, $con, $code, $message, $ircmsg) = @_;
-    $self->log(error => rfc_code_to_nick($code), $message);
+    $self->log(error => rfc_code_to_name($code), $message);
 }
 
 1;

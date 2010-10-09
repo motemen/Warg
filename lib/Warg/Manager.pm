@@ -40,7 +40,9 @@ has mech => (
 has download_dir => (
     is  => 'rw',
     isa => 'Path::Class::Dir',
-    default => './downloads',
+    coerce   => 1,
+    required => 1,
+    default  => './downloads',
 );
 
 sub _build_mech {
@@ -56,12 +58,17 @@ use Warg::Mech;
 use Warg::Downloader::Metadata;
 use Coro;
 use Regexp::Common qw(URI);
+use UNIVERSAL::require;
 
 our $RE_HTTP = $RE{URI}{HTTP}{ -scheme => 'https?' };
 
 sub BUILD {
     my $self = shift;
+    $self->load_script_metadata;
+}
 
+sub load_script_metadata {
+    my $self = shift;
     foreach (grep { $_->basename =~ /\.pl$/ }  $self->scripts_dir->children) {
         $self->log(info => "loading metadata of $_");
         $self->script_metadata->{$_} = Warg::Downloader::Metadata->new(script => $_);
@@ -88,6 +95,15 @@ sub produce_downloader_from_url {
 
 sub handle_input {
     my ($self, $input, $args) = @_;
+
+    if ($input =~ /^warg\.reload$/) {
+        if (Module::Refresh->require) {
+            Module::Refresh->refresh;
+        }
+        $self->script_metadata({});
+        $self->load_script_metadata;
+    }
+
     foreach my $url ($input =~ /$RE_HTTP/go) {
         if (my $downloder = $self->produce_downloader_from_url($url, args => $args)) {
             $downloder->work($url);

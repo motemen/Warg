@@ -10,9 +10,9 @@ requires 'Log::Handler';
 requires 'WWW::Mechanize';
 requires 'HTTP::Config';
 requires 'File::Util';
+requires 'File::chdir';
 
 requires 'Any::Moose';
-
 requires_any_moose 'X::Getopt::Strict';
 
 test_requires 'Test::More';

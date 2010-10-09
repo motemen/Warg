@@ -2,6 +2,7 @@ package Warg::Interface::IRC;
 use Any::Moose;
 
 with 'Warg::Role::Interface';
+with 'Warg::Role::Log';
 
 # --server localhost:6667
 has server => (
@@ -26,6 +27,15 @@ has password => (
     isa => 'Str',
     metaclass => 'Getopt',
     documentation => 'IRC server password',
+);
+
+# --channel #hoge --channel #fuga
+has channels => (
+    is  => 'rw',
+    isa => 'ArrayRef[Str]',
+    metaclass => 'Getopt',
+    cmd_flag  => 'channel',
+    documentation => 'Specify channel(s) to work in',
 );
 
 has irc_client => (
@@ -100,13 +110,27 @@ sub interact {
         publicmsg => sub {
             my ($con, $channel, $msg) = @_;
 
-            my $text = $msg->{params}->[1];
-            $cb->($text, { channel => $channel });
+            if ($self->channel_is_to_work_in($channel)) {
+                my $text = $msg->{params}->[1];
+                $cb->($text, { channel => $channel });
+            }
         }
     );
     $self->irc_client->start;
 
     AE::cv->wait;
+}
+
+sub channel_is_to_work_in {
+    my ($self, $channel) = @_;
+
+    return 1 unless $self->channels;
+
+    foreach (@{ $self->channels }) {
+        return 1 if $_ eq $channel;
+    }
+
+    return 0;
 }
 
 1;

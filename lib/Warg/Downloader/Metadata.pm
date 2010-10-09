@@ -85,7 +85,7 @@ sub handles_res {
     my ($self, $res) = @_;
 
     if ($self->regexp) {
-        return $res->base =~ $self->http_config;
+        return $res->base =~ $self->regexp;
     } elsif ($self->http_config) {
         return $self->http_config->matching($res);
     }

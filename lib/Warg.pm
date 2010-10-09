@@ -1,6 +1,7 @@
 package Warg;
 use Any::Moose;
 
+with 'Warg::Role::Log';
 with any_moose 'X::Getopt::Strict';
 
 our $VERSION = '0.01';
@@ -25,7 +26,9 @@ sub _build_manager {
     my $self = shift;
     return Warg::Manager->new(
         interface => $self->interface,
-        $self->scripts_dir ? ( scripts_dir => $self->scripts_dir ) : (),
+        logger    => $self->logger,
+        $self->scripts_dir  ? ( scripts_dir  => $self->scripts_dir  ) : (),
+        $self->download_dir ? ( download_dir => $self->download_dir ) : (),
     );
 }
 
@@ -43,15 +46,23 @@ sub _build_interface {
     Getopt::Long::Configure('no_pass_through');
 
     local @ARGV = @{ $self->extra_argv };
-    return $interface_class->new_with_options;
+    return $interface_class->new_with_options(logger => $self->logger);
 }
 
-# --scripts ./scripts
+# --scripts-dir ./scripts
 has scripts_dir => (
     is  => 'rw',
     isa => 'Str',
     metaclass => 'Getopt',
-    cmd_flag  => 'scripts',
+    cmd_flag  => 'scripts-dir',
+);
+
+# --download-dir ./downloads
+has download_dir => (
+    is  => 'rw',
+    isa =>' Str',
+    metaclass => 'Getopt',
+    cmd_flag  => 'download-dir',
 );
 
 # --interface IRC
@@ -62,6 +73,13 @@ has interface_class => (
     default     => 'Console',
     cmd_flag    => 'interface',
     cmd_aliases => [ 'i' ],
+);
+
+# --debug
+has debug => (
+    is  => 'rw',
+    isa => 'Bool',
+    metaclass => 'Getopt',
 );
 
 no Any::Moose;
@@ -75,6 +93,11 @@ use Getopt::Long::Descriptive;
 use UNIVERSAL::require;
 
 Getopt::Long::Configure('pass_through');
+
+sub BUILD {
+    my $self = shift;
+    $self->log_level('debug') if $self->debug;
+}
 
 sub run {
     my $self = shift;
@@ -96,7 +119,7 @@ Warg - Downloader
 
   ./warg.pl # implies --interface Console
 
-  ./warg.pl --scripts ./scripts -i IRC --server localhost:6667
+  ./warg.pl -i IRC --server localhost:6667
 
 =head1 DESCRIPTION
 

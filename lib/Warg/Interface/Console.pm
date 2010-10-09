@@ -9,7 +9,6 @@ __PACKAGE__->meta->make_immutable;
 
 use AnyEvent;
 use Coro;
-use Coro::AnyEvent;
 
 sub say {
     my ($self, $message) = @_;
