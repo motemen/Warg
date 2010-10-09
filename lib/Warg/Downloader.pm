@@ -49,6 +49,13 @@ has args => (
     isa => 'Maybe[HashRef]',
 );
 
+has download_dir => (
+    is  => 'rw',
+    isa => 'Path::Class::Dir',
+    coerce  => 1,
+    default => './downloads',
+);
+
 no Any::Moose;
 
 __PACKAGE__->meta->make_immutable;
@@ -62,6 +69,7 @@ use Coro::AnyEvent;
 use Coro::Timer;
 use Carp;
 use File::Util qw(escape_filename);
+use File::chdir;
 
 sub metadata_class {
     my $class = shift;
@@ -78,12 +86,12 @@ sub from_script {
 
 sub work_sync {
     my ($self, $url) = @_;
+    croak 'missing url' unless $url;
     $self->code->($self, $url);
 }
 
 sub work {
-    my $self = shift;
-    my $url  = shift or croak 'missing url';
+    my ($self, $url) = @_;
 
     async {
         $self->work_sync($url);
@@ -118,6 +126,10 @@ sub prepare_request {
 
 sub download {
     my ($self, $url, $option) = @_;
+
+    $self->download_dir->mkpath;
+
+    local $CWD = $self->download_dir;
 
     $option ||= {};
 

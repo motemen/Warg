@@ -2,6 +2,9 @@ package t::Warg::MockLWP;
 use strict;
 use warnings;
 use Test::More;
+use Path::Class;
+
+our $Root = file(__FILE__)->dir->parent->parent->absolute;
 
 require LWP::UserAgent;
 
@@ -19,12 +22,13 @@ no warnings 'redefine';
     $base =~ s</><\$>g;
     $base =~ s<\?><\$>g;
 
-    my $file = 't/samples/http/' . $request->method . '_' . $base;
+    my $file = $Root->file(qw(t samples http), $request->method . '_' . $base);
     if (!-r $file) {
-        $file = 't/samples/http/' . $base;
+        $file = $Root->file(qw(t samples http), $base);
     }
 
-    open my $fh, '<', $file or die $!;
+    my $fh = $file->openr;
+    # open my $fh, '<', $file or die "open $file: $!";
 
     require HTTP::Response;
 

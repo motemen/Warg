@@ -37,6 +37,12 @@ has mech => (
     lazy_build => 1,
 );
 
+has download_dir => (
+    is  => 'rw',
+    isa => 'Path::Class::Dir',
+    default => './downloads',
+);
+
 sub _build_mech {
     my $self = shift;
     return Warg::Mech->new(logger => $self->logger);
@@ -73,6 +79,7 @@ sub produce_downloader_from_url {
 
         return $meta->new_downloader(
             mech => $self->mech->clone,
+            download_dir => $self->download_dir,
             $self->interface ? ( interface => $self->interface ) : (),
             %args,
         );
