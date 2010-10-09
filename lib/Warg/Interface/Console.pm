@@ -8,37 +8,49 @@ no Any::Moose;
 __PACKAGE__->meta->make_immutable;
 
 use AnyEvent;
+use Coro;
 use Coro::AnyEvent;
 
 sub say {
+    my ($self, $message) = @_;
+    print "$message\n";
 }
 
 sub ask {
     my ($self, $prompt) = @_;
 
     local $| = 1;
-    print "$prompt: ";
+    print "\n$prompt: ";
 
-    Coro::AnyEvent::readable *STDIN;
-
-    chomp (my $res = <STDIN>);
-    return $res;
+    $self->{cb} = rouse_cb;
+    my $ans = rouse_wait;
+    delete $self->{cb};
+    return $ans;
 }
 
 sub interact {
     my ($self, $cb) = @_;
 
     local $| = 1;
-    while () {
-        print 'warg> ';
+    print 'warg> ';
 
-        Coro::AnyEvent::readable *STDIN;
+    my $cv = AE::cv;
+    my $w = AE::io *STDIN, 0, sub {
         my $line = <STDIN>;
-        last unless defined $line;
+
+        if (not defined $line) {
+            print "\n";
+            $cv->send;
+            return;
+        }
 
         chomp $line;
-        $cb->($line);
-    }
+        ($self->{cb} || $cb)->($line);
+
+        print 'warg> ';
+    };
+
+    $cv->wait;
 }
 
 1;

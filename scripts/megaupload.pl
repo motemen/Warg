@@ -18,6 +18,8 @@ sub {
     
     $self->mech->submit_form(with_fields => { captcha => $key });
 
+    $self->sleep(45);
+
     my $download_link = [ $self->mech->tree->findnodes(q#id('downloadlink')/a#) ]->[0];
     $self->download($download_link->attr('href'));
 };

@@ -59,6 +59,7 @@ use AnyEvent;
 use Coro;
 use Coro::LWP;
 use Coro::AnyEvent;
+use Coro::Timer;
 use Carp;
 use File::Util qw(escape_filename);
 
@@ -102,6 +103,12 @@ sub say {
 sub ask {
     my ($self, $prompt) = @_;
     return $self->interface->ask($prompt, $self->args ? $self->args : ());
+}
+
+sub sleep {
+    my ($self, $seconds) = @_;
+    $self->say("sleep for $seconds seconds");
+    Coro::Timer::sleep $seconds;
 }
 
 sub prepare_request {

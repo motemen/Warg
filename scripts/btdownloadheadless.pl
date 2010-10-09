@@ -3,7 +3,6 @@ use warnings;
 use AnyEvent::Util;
 use Coro;
 use Coro::Handle;
-use Coro::Timer qw(sleep);
 
 use HTTP::Config;
 
@@ -31,7 +30,7 @@ sub {
         }
         elsif (/^time left:\s+Download Succeeded!/) {
             $self->say("downloaded: $filename");
-            sleep 3;
+            $self->sleep(3);
             kill 'HUP', $pid;
             last;
         }
