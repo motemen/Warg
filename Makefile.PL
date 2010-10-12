@@ -10,9 +10,10 @@ requires 'Log::Handler';
 requires 'WWW::Mechanize';
 requires 'HTTP::Config';
 requires 'File::Util';
-requiers 'Guard';
+requires 'Guard';
+requires 'HTML::TreeBuilder::XPath', '0.11';
 
-requires 'Any::Moose';
+requires 'Any::Moose', '0.13';
 requires_any_moose 'X::Getopt';
 requires_any_moose 'X::Getopt::Strict';
 
