@@ -13,6 +13,8 @@ $Config->add(m_path_match => qr/\.torrent$/);
 sub {
     my ($self, $url) = @_;
 
+    my $s = $self->chdir_to_download_dir;
+
     my $filename;
 
     my ($r, $w) = map { unblock $_ } portable_pipe;
@@ -37,7 +39,7 @@ sub {
         elsif (/^percent done:\s+(\d+(?:\.\d+))\s*$/) {
             $self->say($_);
         }
-    };
+    }
 
     $cv->cb(rouse_cb);
 

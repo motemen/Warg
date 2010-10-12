@@ -69,7 +69,8 @@ use Coro::AnyEvent;
 use Coro::Timer;
 use Carp;
 use File::Util qw(escape_filename);
-use File::chdir;
+use Cwd qw(getcwd);
+use Guard;
 
 sub metadata_class {
     my $class = shift;
@@ -124,14 +125,23 @@ sub prepare_request {
     $self->log(debug => $req->method, $req->uri);
 }
 
+sub chdir_to_download_dir {
+    my $self = shift;
+
+    my $cwd = getcwd;
+
+    $self->download_dir->mkpath;
+    chdir $self->download_dir;
+
+    return guard { chdir $cwd };
+}
+
 sub download {
     my ($self, $url, $option) = @_;
 
-    $self->download_dir->mkpath;
-
-    local $CWD = $self->download_dir;
-
     $option ||= {};
+
+    my $guard = $self->chdir_to_download_dir;
 
     $self->say("start downloading <$url>");
 

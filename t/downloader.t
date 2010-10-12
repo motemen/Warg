@@ -9,6 +9,10 @@ use Warg::Manager;
 
 use URI::Escape qw(uri_unescape);
 use Coro;
+use File::Temp qw(tempdir);
+use File::Spec;
+
+my $download_dir = tempdir(CLEANUP => 1);
 
 use_ok 'Warg::Downloader';
 
@@ -30,9 +34,10 @@ subtest 'ichigo-up' => sub {
 
     my $downloader = Warg::Downloader->from_script(
         'scripts/sn-uploader.pl', (
-            interface => $interface,
-            log_level => 'emerg',
-            mech      => $mech,
+            interface    => $interface,
+            log_level    => 'emerg',
+            mech         => $mech,
+            download_dir => $download_dir,
         )
     );
     isa_ok $downloader, 'Warg::Downloader';
@@ -60,11 +65,10 @@ subtest 'ichigo-up' => sub {
     );
 
     cede; # resume working; go POST http://ichigo-up.com/Sn2/up3/upload.cgi
-    cmp_deeply $downloader->mech->response, methods(
-        base => str 'http://ichigo-up.com/Sn2/up3/ggg/re10061.tif_F3f1W9TZGbWn6Ws6egs4/re10061.tif',
-        [ header => 'Content-Type' ]   => 'image/tiff',
-        [ header => 'Content-Length' ] => '786572',
-    );
+    is $downloader->mech->response->request->uri, 'http://ichigo-up.com/Sn2/up3/ggg/re10061.tif_F3f1W9TZGbWn6Ws6egs4/re10061.tif';
+
+    my $file = File::Spec->catfile($download_dir, 're10061.tif');
+    ok -f $file, "stored to $file";
 };
 
 subtest 'megaupload' => sub {

@@ -10,7 +10,7 @@ requires 'Log::Handler';
 requires 'WWW::Mechanize';
 requires 'HTTP::Config';
 requires 'File::Util';
-requires 'File::chdir';
+requiers 'Guard';
 
 requires 'Any::Moose';
 requires_any_moose 'X::Getopt::Strict';
