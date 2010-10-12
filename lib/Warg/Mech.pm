@@ -34,6 +34,8 @@ sub new {
 sub prepare_request {
     my ($self, $req) = @_;
 
+    $self->SUPER::prepare_request($req);
+
     $req->headers->init_header(
         User_Agent => 'Mozilla/5.0 (Windows; U; Windows NT 6.1; ja; rv:1.9.2.6) Gecko/20100625 Firefox/3.6.6',
     );
