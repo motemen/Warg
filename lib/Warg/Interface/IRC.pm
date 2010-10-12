@@ -48,8 +48,6 @@ no Any::Moose;
 
 __PACKAGE__->meta->make_immutable;
 
-use Warg::IRC::Client;
-
 use AnyEvent;
 use AnyEvent::IRC::Client;
 use AnyEvent::IRC::Util qw(mk_msg rfc_code_to_name);
