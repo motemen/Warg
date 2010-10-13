@@ -101,6 +101,9 @@ sub BUILD {
 
 sub run {
     my $self = shift;
+    local $SIG{__DIE__} = sub {
+        $self->log(error => $_[0]);
+    };
     $self->manager->start_interactive;
 }
 

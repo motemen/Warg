@@ -87,8 +87,14 @@ sub from_script {
 
 sub work_sync {
     my ($self, $url) = @_;
+
     croak 'missing url' unless $url;
-    $self->code->($self, $url);
+
+    my $ret = eval { $self->code->($self, $url) };
+    if (!defined $ret && $@) {
+        $self->log(error => $@);
+    }
+    return $ret;
 }
 
 sub work {
