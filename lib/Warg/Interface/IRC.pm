@@ -19,6 +19,7 @@ has nick => (
     isa => 'Str',
     metaclass => 'Getopt',
     documentation => 'IRC nick',
+    default => 'warg',
 );
 
 # --password xyz
@@ -104,7 +105,7 @@ sub interact {
 
     my ($host, $port) = split /:/, $self->server;
     $self->log(notice => "connecting to $host:$port");
-    $self->client->connect($host, $port, $self->connect_info);
+    $self->irc_client->connect($host, $port, $self->connect_info);
 
     AE::cv->wait;
 }
@@ -115,7 +116,7 @@ sub channel_is_to_work_in {
     return 1 unless $self->channels;
 
     foreach (@{ $self->channels }) {
-        return 1 if $_ eq $channel;
+        return 1 if uc $_ eq uc $channel;
     }
 
     return 0;
@@ -127,7 +128,7 @@ sub setup_callbacks {
     foreach (keys %Warg::Interface::IRC::) {
         my ($ev) = /^on_(\w+)$/   or next;
         my $code = $self->can($_) or next;
-        $self->client->reg_cb($ev => sub { $self->$code(@_) });
+        $self->irc_client->reg_cb($ev => sub { $self->$code(@_) });
     }
 }
 
@@ -135,7 +136,7 @@ sub notice {
     my ($self, $channel, @args) = @_;
     my $message = "@args";
     utf8::encode $message;
-    $self->client->send_srv(NOTICE => $channel, $message);
+    $self->irc_client->send_srv(NOTICE => $channel, $message);
 }
 
 sub connect_info {

@@ -31,8 +31,18 @@ sub new {
     return $self;
 }
 
-sub agent {
-    'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US) AppleWebKit/534.3 (KHTML, like Gecko) Chrome/6.0.472.62 Safari/534.3';
+sub prepare_request {
+    my ($self, $req) = @_;
+
+    $req->headers->init_header(
+        User_Agent => 'Mozilla/5.0 (Windows; U; Windows NT 6.1; ja; rv:1.9.2.6) Gecko/20100625 Firefox/3.6.6',
+    );
+
+    $req->headers->init_header(
+        Accept => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+    );
+
+    return $req;
 }
 
 sub downloader {

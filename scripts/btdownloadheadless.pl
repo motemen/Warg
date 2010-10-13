@@ -18,11 +18,13 @@ sub {
     my $filename;
 
     my ($r, $w) = map { unblock $_ } portable_pipe;
-    my $cv = run_cmd [ 'btdownloadheadless', $url, '--display_interval', 10 ],
+    my $cv = run_cmd [ 'btdownloadheadless', $url, '--display_interval', 150, split / /, ($ENV{WARG_BTDOWNLOADHEADLESS_ARGS} || '') ],
         '>'  => sub { $w->print($_[0]) },
         '$$' => \my $pid;
 
     while (local $_ = $r->readline) {
+        $self->log(debug => $_);
+
         if (/^ERROR:/) {
             die "failed: $_";
         }

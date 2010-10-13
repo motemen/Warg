@@ -106,12 +106,12 @@ sub log_name {
 sub say {
     my ($self, @args) = @_;
     $self->log(notice => @args);
-    $self->interface->say("@args", $self->args ? $self->args : ());
+    $self->interface->say("[$self->{id}] @args", $self->args ? $self->args : ());
 }
 
 sub ask {
     my ($self, $prompt) = @_;
-    return $self->interface->ask($prompt, $self->args ? $self->args : ());
+    return $self->interface->ask("[$self->{id}] $prompt", $self->args ? $self->args : ());
 }
 
 sub sleep {

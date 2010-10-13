@@ -13,6 +13,7 @@ requires 'File::Util';
 requiers 'Guard';
 
 requires 'Any::Moose';
+requires_any_moose 'X::Getopt';
 requires_any_moose 'X::Getopt::Strict';
 
 test_requires 'Test::More';

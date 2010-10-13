@@ -84,9 +84,12 @@ sub produce_downloader_from_url {
         my $meta = $self->script_metadata->{$_} or next;
         $meta->handles_res($self->mech->response) or next;
 
+        $self->log(notice => "$meta->{script} is going to handle $url");
+
         return $meta->new_downloader(
-            mech => $self->mech->clone,
+            mech         => $self->mech->clone,
             download_dir => $self->download_dir,
+            logger       => $self->logger,
             $self->interface ? ( interface => $self->interface ) : (),
             %args,
         );
@@ -96,7 +99,7 @@ sub produce_downloader_from_url {
 sub handle_input {
     my ($self, $input, $args) = @_;
 
-    if ($input =~ /^warg\.reload$/) {
+    if ($input eq 'warg.reload') {
         if (Module::Refresh->require) {
             Module::Refresh->refresh;
         }
