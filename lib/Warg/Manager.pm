@@ -121,4 +121,12 @@ sub start_interactive {
     $self->interface->interact(sub { $self->handle_input(@_) });
 }
 
+package Warg::Manager::Commands;
+
+sub reload {
+}
+
+sub jobs {
+}
+
 1;

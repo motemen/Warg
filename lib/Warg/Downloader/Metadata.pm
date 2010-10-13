@@ -19,6 +19,17 @@ has code => (
     isa => 'CodeRef',
 );
 
+has name => (
+    is  => 'rw',
+    isa => 'Str',
+    lazy_build => 1,
+);
+
+sub _build_name {
+    my $self = shift;
+    return $self->script->basename;
+}
+
 no Any::Moose;
 
 __PACKAGE__->meta->make_immutable;
@@ -48,7 +59,6 @@ sub BUILD {
     $self->{config} = Warg::Downloader::Config->new($config);
 }
 
-# TODO HTTP::Config 微妙に使いづらいのでなんぞ適当に
 sub handles_res {
     my ($self, $res) = @_;
     return 0 unless $self->config;
@@ -60,6 +70,7 @@ sub new_downloader {
     return Warg::Downloader->new(
         %args,
         code => $self->code,
+        metadata => $self,
     );
 }
 

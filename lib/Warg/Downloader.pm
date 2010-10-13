@@ -56,6 +56,19 @@ has download_dir => (
     default => './downloads',
 );
 
+has metadata => (
+    is  => 'rw',
+    isa => 'Warg::Downloader::Metadata',
+);
+
+has started_at => (
+    is  => 'ro',
+    isa => 'Int',
+    default => sub { time },
+);
+
+sub elapsed { time - $_[0]->started_at }
+
 no Any::Moose;
 
 __PACKAGE__->meta->make_immutable;
@@ -67,10 +80,10 @@ use Coro;
 use Coro::LWP;
 use Coro::AnyEvent;
 use Coro::Timer;
+use Guard;
+use Cwd qw(getcwd);
 use Carp;
 use File::Util qw(escape_filename);
-use Cwd qw(getcwd);
-use Guard;
 
 sub metadata_class {
     my $class = shift;
@@ -105,19 +118,22 @@ sub work {
     };
 }
 
-sub log_name {
-    return "Downloader[$_[0]{id}]";
+sub name {
+    my $self = shift;
+    return sprintf "%s[%d]", $self->metadata->name, $self->id;
 }
+
+sub log_name { shift->name };
 
 sub say {
     my ($self, @args) = @_;
     $self->log(notice => @args);
-    $self->interface->say("[$self->{id}] @args", $self->args ? $self->args : ());
+    $self->interface->say($self->name . " @args", $self->args ? $self->args : ());
 }
 
 sub ask {
     my ($self, $prompt) = @_;
-    return $self->interface->ask("[$self->{id}] $prompt", $self->args ? $self->args : ());
+    return $self->interface->ask($self->name . " $prompt", $self->args ? $self->args : ());
 }
 
 sub sleep {
