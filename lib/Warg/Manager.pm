@@ -50,6 +50,12 @@ sub _build_mech {
     return Warg::Mech->new(logger => $self->logger);
 }
 
+has jobs => (
+    is  => 'rw',
+    isa => 'HashRef[Warg::Downloader]',
+    default => sub { +{} },
+);
+
 no Any::Moose;
 
 __PACKAGE__->meta->make_immutable;
@@ -58,7 +64,6 @@ use Warg::Mech;
 use Warg::Downloader::Metadata;
 use Coro;
 use Regexp::Common qw(URI);
-use UNIVERSAL::require;
 
 our $RE_HTTP = $RE{URI}{HTTP}{ -scheme => 'https?' };
 
@@ -99,17 +104,16 @@ sub produce_downloader_from_url {
 sub handle_input {
     my ($self, $input, $args) = @_;
 
-    if ($input eq 'warg.reload') {
-        if (Module::Refresh->require) {
-            Module::Refresh->refresh;
+    if ($input =~ /^warg\.(\w+)$/) {
+        if (my $code = Warg::Manager::Commands->can($1)) {
+            $self->$code;
         }
-        $self->script_metadata({});
-        $self->load_script_metadata;
     }
 
     foreach my $url ($input =~ /$RE_HTTP/go) {
-        if (my $downloder = $self->produce_downloader_from_url($url, args => $args)) {
-            $downloder->work($url);
+        if (my $downloader = $self->produce_downloader_from_url($url, args => $args)) {
+            $self->jobs->{ $downloader->id } = $downloader;
+            $downloader->work($url, sub { delete $self->jobs->{ $downloader->id } });
         } else {
             $self->log(notice => "Cannot handle $url");
         }
@@ -122,11 +126,27 @@ sub start_interactive {
 }
 
 package Warg::Manager::Commands;
+use UNIVERSAL::require;
 
 sub reload {
+    my $self = shift;
+
+    if (Module::Refresh->require) {
+        Module::Refresh->refresh;
+    } else {
+        $self->log(error => "Could not require Module::Refresh: $@");
+    }
+
+    $self->script_metadata({});
+    $self->load_script_metadata;
 }
 
 sub jobs {
+    my $self = shift;
+
+    while (my ($id, $job) = each %{ $self->jobs }) {
+        $self->interface->say(sprintf '%s: %s', $id, $job->name);
+    }
 }
 
 1;
