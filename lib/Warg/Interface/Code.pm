@@ -1,7 +1,7 @@
 package Warg::Interface::Code;
 use Any::Moose;
 
-with 'Warg::Role::Interface';
+extends 'Warg::Interface';
 
 has say_handler => (
     is  => 'rw',

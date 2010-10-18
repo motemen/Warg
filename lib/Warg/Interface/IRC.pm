@@ -1,7 +1,8 @@
 package Warg::Interface::IRC;
 use Any::Moose;
 
-with 'Warg::Role::Interface';
+extends 'Warg::Interface';
+
 with 'Warg::Role::Log';
 
 # --server localhost:6667

@@ -1,7 +1,7 @@
 package Warg::Interface::Console;
 use Any::Moose;
 
-with 'Warg::Role::Interface';
+extends 'Warg::Interface';
 
 no Any::Moose;
 
