@@ -22,4 +22,7 @@ sub interact {
     warn "$class\::interact not implemented";
 }
 
+sub setup {
+}
+
 1;
