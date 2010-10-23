@@ -11,7 +11,7 @@ sub new {
 
     my $self = $class->SUPER::new(%args);
     $self->{downloader} = $downloader;
-    $self->{logger}     = $downloader->logger if $downloader;
+    $self->{logger}     = $logger || ($downloader && $downloader->logger);
 
     $self->add_handler(
         request_send => sub {
@@ -23,7 +23,7 @@ sub new {
     $self->add_handler(
         response_data => sub {
             my ($res) = @_;
-            $self->log(debug => $res->request->uri, $res->code, $res->content_type);
+            $self->log(debug => $res->request->method, $res->request->uri, '=>', $res->code, $res->content_type);
             return;
         },
     );

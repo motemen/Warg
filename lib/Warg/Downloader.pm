@@ -32,7 +32,8 @@ has mech => (
     is  => 'rw',
     isa => 'Warg::Mech',
     default => sub {
-        return Warg::Mech->new;
+        require Warg::Mech;
+        return  Warg::Mech->new(downloader => $_[0]);
     },
 );
 
@@ -72,8 +73,6 @@ sub elapsed { time - $_[0]->started_at }
 no Any::Moose;
 
 __PACKAGE__->meta->make_immutable;
-
-use Warg::Mech;
 
 use AnyEvent;
 use Coro;

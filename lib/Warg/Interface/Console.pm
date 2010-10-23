@@ -27,6 +27,7 @@ sub ask {
     return $ans;
 }
 
+# XXX 外から終了させることができないといけない
 sub interact {
     my ($self, $cb) = @_;
 
