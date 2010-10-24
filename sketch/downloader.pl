@@ -13,4 +13,5 @@ $Warg::Role::Log::DefaultLogLevel = 'debug';
 
 my $downloader = Warg::Downloader->from_script($script);
 $downloader->work($url)->on_destroy(sub { exit });
+$downloader->interface->show_prompt(0);
 $downloader->interface->interact;

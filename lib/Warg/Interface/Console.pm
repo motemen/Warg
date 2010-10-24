@@ -3,6 +3,12 @@ use Any::Moose;
 
 extends 'Warg::Interface';
 
+has show_prompt => (
+    is  => 'rw',
+    isa => 'Bool',
+    default => 1,
+);
+
 no Any::Moose;
 
 __PACKAGE__->meta->make_immutable;
@@ -32,7 +38,7 @@ sub interact {
     my ($self, $cb) = @_;
 
     local $| = 1;
-    print 'warg> ';
+    print 'warg> ' if $self->show_prompt;
 
     my $cv = AE::cv;
     my $w = AE::io *STDIN, 0, sub {
@@ -47,7 +53,7 @@ sub interact {
         chomp $line;
         ($self->{cb} || $cb)->($line);
 
-        print 'warg> ';
+        print 'warg> ' if $self->show_prompt;
     };
 
     $cv->wait;

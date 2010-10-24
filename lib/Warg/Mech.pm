@@ -36,7 +36,7 @@ sub prepare_request {
 
     $self->SUPER::prepare_request($req);
 
-    $req->headers->init_header(
+    $req->headers->header(
         User_Agent => 'Mozilla/5.0 (Windows; U; Windows NT 6.1; ja; rv:1.9.2.6) Gecko/20100625 Firefox/3.6.6',
     );
 
@@ -64,6 +64,13 @@ sub log {
     if ($self->logger) {
         $self->logger->log(@_);
     }
+}
+
+sub clone {
+    my $self = shift;
+    my $cloned = $self->SUPER::clone();
+    $cloned->logger($self->logger);
+    return $cloned;
 }
 
 sub tree {

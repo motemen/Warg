@@ -21,6 +21,14 @@ sub {
 
     $self->mech->get($url) unless ($self->mech->base || '') eq $url;
 
+    # ???
+    my $cklink;
+    my $cklink_res = $self->mech->get('http://209.222.8.217/delivery/v/s/1/z/1/d/www.fileserve.com');
+    if ($cklink_res->decoded_content =~ /ckLink="(.+?)"/) {
+        $cklink = $1;
+    }
+    $self->mech->back;
+
     my $recaptcha_short = $self->mech->tree->findvalue(q#id('recaptcha_shortencode_field')/@value#);
 
     # ???
@@ -31,17 +39,24 @@ sub {
 
     my $captcha_key = $self->ask("Captcha: $captcha_image");
 
-    my $check_res = $self->mech->clone->post('http://www.fileserve.com/checkReCaptcha.php', [
+    my $check_res = $self->mech->post('http://www.fileserve.com/checkReCaptcha.php', [
         recaptcha_challenge_field   => $recaptcha->challenge,
         recaptcha_response_field    => $captcha_key,
         recaptcha_shortencode_field => $recaptcha_short,
     ]);
     $check_res->is_success or die $check_res->as_string;
     $check_res->decoded_content eq 'success' or die 'reCAPTCHA failed';
+    $self->mech->back;
+
+    # ???
+    if ($cklink) {
+        $self->mech->get($cklink);
+        $self->mech->back;
+    }
 
     $self->mech->post($url, [ downloadLink => 'wait' ]);
     my ($wait) = $self->mech->res->decoded_content =~ /^(\d+)$/ or warn $self->mech->res->decoded_content;
-    $self->sleep($wait || 40);
+    $self->sleep($wait || 30);
 
     $self->mech->post($url, [ downloadLink => 'show' ]);
     $self->sleep(1);
