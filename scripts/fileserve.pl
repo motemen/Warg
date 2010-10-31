@@ -12,8 +12,6 @@ use URI;
 use WWW::reCAPTCHA::Client;
 use HTTP::Request::Common qw(POST);
 
-# http://209.222.8.217/delivery/c/s/1/z/1/d/www.fileserve.com/ck/d03d43e93c6f86829c33f4959a3b0af5?_=1287855361530
-
 sub {
     my ($self, $url) = @_;
 
@@ -21,12 +19,16 @@ sub {
 
     $self->mech->get($url) unless ($self->mech->base || '') eq $url;
 
-    # ???
-    my $cklink;
-    my $cklink_res = $self->mech->get('http://209.222.8.217/delivery/v/s/1/z/1/d/www.fileserve.com');
-    if ($cklink_res->decoded_content =~ /ckLink="(.+?)"/) {
-        $cklink = $1;
-    }
+#   # ??? いらんかも
+#   my $cklink;
+#   my $cklink_res = $self->mech->get('http://209.222.8.217/delivery/v/s/1/z/1/d/www.fileserve.com');
+#   if ($cklink_res->decoded_content =~ /ckLink="(.+?)"/) {
+#       $cklink = $1;
+#   }
+#   $self->mech->back;
+
+    my $download_captcha_js = $self->mech->tree->findvalue(q#//script[contains(@src,'/download_captcha.js')]/@src#) or die;
+    $self->mech->get($download_captcha_js);
     $self->mech->back;
 
     my $recaptcha_short = $self->mech->tree->findvalue(q#id('recaptcha_shortencode_field')/@value#);
@@ -48,21 +50,27 @@ sub {
     $check_res->decoded_content eq 'success' or die 'reCAPTCHA failed';
     $self->mech->back;
 
-    # ???
-    if ($cklink) {
-        $self->mech->get($cklink);
-        $self->mech->back;
-    }
+#   # ??? いらんかも
+#   if ($cklink) {
+#       $self->mech->get($cklink);
+#       $self->mech->back;
+#   }
 
     $self->mech->post($url, [ downloadLink => 'wait' ]);
     my ($wait) = $self->mech->res->decoded_content =~ /^(\d+)$/ or warn $self->mech->res->decoded_content;
-    $self->sleep($wait || 30);
+    $self->sleep(($wait || 30) + 3);
 
     $self->mech->post($url, [ downloadLink => 'show' ]);
     $self->sleep(1);
 
     my $download_res = $self->mech->simple_request(POST $url, [ download => 'normal' ]);
-    $download_res->is_redirect or die 'not redirect: ' . $download_res->as_string;
+    $download_res->is_redirect or do {
+        warn 'not redirect: ' . $download_res->as_string;
+        $self->log(error => 'failed; not redirect');
+        $self->log(warn => [ $self->mech->tree->findnodes_as_strings('//li[@class="title"]') ]->[0]);
+        return;
+    };
+
     $self->download($download_res->header('Location'));
 
 };
