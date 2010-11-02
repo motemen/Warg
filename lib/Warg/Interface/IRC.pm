@@ -59,14 +59,14 @@ use Carp;
 
 sub say {
     my ($self, $message, $args) = @_;
-    croak unless $args->{channel};
+    croak 'no channel specified' unless $args->{channel};
 
     $self->notice($args->{channel}, $message);
 }
 
 sub ask {
     my ($self, $prompt, $args) = @_;
-    croak unless $args->{channel};
+    croak 'no channel specified' unless $args->{channel};
 
     my $session = random_regex('\w{4}');
     $self->notice($args->{channel}, qq<[$session] $prompt (reply as '$session=blah')>);

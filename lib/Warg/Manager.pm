@@ -106,7 +106,7 @@ sub handle_input {
 
     if ($input =~ /^warg:(\w+)$/) {
         if (my $code = Warg::Manager::Commands->can($1)) {
-            $self->$code;
+            $self->$code($input, $args);
         }
     }
 
@@ -143,10 +143,10 @@ sub reload {
 }
 
 sub jobs {
-    my $self = shift;
+    my ($self, undef, $args) = @_;
 
     while (my ($id, $downloader) = each %{ $self->jobs }) {
-        $self->interface->say($downloader->status_string);
+        $self->interface->say($downloader->status_string, $args);
     }
 }
 
