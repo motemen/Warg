@@ -17,8 +17,9 @@ sub {
 
     my $filename;
 
+    # TODO ここは Downloader の API で
     my ($r, $w) = map { unblock $_ } portable_pipe;
-    my $cv = run_cmd [ 'btdownloadheadless', $url, '--display_interval', 150, split / /, ($ENV{WARG_BTDOWNLOADHEADLESS_ARGS} || '') ],
+    my $cv = run_cmd [ 'btdownloadheadless', $url, split / /, ($ENV{WARG_BTDOWNLOADHEADLESS_ARGS} || '') ],
         '>'  => sub { $w->print($_[0]) },
         '$$' => \my $pid;
 
@@ -31,6 +32,8 @@ sub {
 
         if (/^saving:\s+(.+)/ && !defined $filename) {
             $filename = $1;
+            $filename =~ s/\s*\([^\(\)]+?\)$//;
+            $self->filename($filename);
         }
         elsif (/^time left:\s+Download Succeeded!/) {
             $self->say("downloaded: $filename");
@@ -39,10 +42,12 @@ sub {
             last;
         }
         elsif (/^percent done:\s+(\d+(?:\.\d+))\s*$/) {
-            $self->say($_);
+            # $self->say($_);
+            $self->progress($1 / 100);
         }
     }
 
+    # TODO ここも Downloader の API で
     $cv->cb(rouse_cb);
 
     return rouse_wait;

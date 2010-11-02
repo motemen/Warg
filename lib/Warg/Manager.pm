@@ -5,7 +5,7 @@ use Any::Moose 'X::Types::Path::Class';
 with 'Warg::Role::Log';
 
 # is
-# - downloder manager
+# - downloader manager
 # has
 # - interface to human
 # - downloader metadata & global config
@@ -104,7 +104,7 @@ sub produce_downloader_from_url {
 sub handle_input {
     my ($self, $input, $args) = @_;
 
-    if ($input =~ /^warg\.(\w+)$/) {
+    if ($input =~ /^warg:(\w+)$/) {
         if (my $code = Warg::Manager::Commands->can($1)) {
             $self->$code;
         }
@@ -137,6 +137,7 @@ sub reload {
         $self->log(error => "Could not require Module::Refresh: $@");
     }
 
+    # TODO cwd
     $self->script_metadata({});
     $self->load_script_metadata;
 }
@@ -144,8 +145,8 @@ sub reload {
 sub jobs {
     my $self = shift;
 
-    while (my ($id, $job) = each %{ $self->jobs }) {
-        $self->interface->say(sprintf '%s: %s', $id, $job->name);
+    while (my ($id, $downloader) = each %{ $self->jobs }) {
+        $self->interface->say($downloader->status_string);
     }
 }
 

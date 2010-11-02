@@ -62,13 +62,44 @@ has metadata => (
     isa => 'Warg::Downloader::Metadata',
 );
 
+## status
+
+has url => (
+    is  => 'rw',
+    isa => 'Str',
+);
+
 has started_at => (
     is  => 'ro',
     isa => 'Int',
     default => sub { time },
 );
 
-sub elapsed { time - $_[0]->started_at }
+# $self->download($url) を使っている限りは
+# $self->filname, bytes_total, bytes_received は勝手に更新される
+# そうでない場合は自力で更新する必要あり
+
+has filename => (
+    is  => 'rw',
+    isa => 'Str',
+);
+
+has bytes_total => (
+    is  => 'rw',
+    isa => 'Int',
+);
+
+has bytes_received => (
+    is  => 'rw',
+    isa => 'Int',
+);
+
+# bytes_total, bytes_received が分からない場合にこれを更新してもよい
+
+has progress => (
+    is  => 'rw',
+    isa => 'Num',
+);
 
 no Any::Moose;
 
@@ -101,6 +132,8 @@ sub work_sync {
     my ($self, $url) = @_;
 
     croak 'missing url' unless $url;
+
+    $self->url($url);
 
     my $ret = eval { $self->code->($self, $url) };
     if (!defined $ret && $@) {
@@ -168,21 +201,73 @@ sub download {
     $self->say("start downloading <$url>");
 
     my ($filename, $fh);
-    my $res = $self->mech->get($url, ':content_cb' => sub {
-        my ($data, $res) = @_;
-        unless (defined $fh) {
-            $filename = $res->filename || $url;
-            $filename = $option->{prefix} . $filename if defined $option->{prefix};
-            $filename = escape_filename $filename;
+    $self->mech->set_my_handler(
+        response_data => sub {
+            my ($res, $ua, $h, $data) = @_;
 
-            open $fh, '>', $filename or die $!;
-            $self->log(info => "filename: $filename");
+            unless (defined $self->bytes_total) {
+                my $h = $res->headers;
+                $self->bytes_total($h && $h->header('Content-Length') || 0);
+            }
+
+            unless (defined $fh) {
+                $filename = $res->filename || $url;
+                $filename = $option->{prefix} . $filename if defined $option->{prefix};
+                $filename = escape_filename $filename;
+
+                $self->filename($filename);
+
+                open $fh, '>', $filename or die $!;
+                $self->log(info => "filename: $filename");
+            }
+
+            print $fh $data;
+
+            $self->bytes_received(0) unless $self->bytes_received;
+            $self->{bytes_received} += length $data;
         }
-        print $fh $data;
-    });
+    );
+    $self->mech->get($url);
+    $self->mech->set_my_handler(response_data => undef);
     close $fh if defined $fh;
 
     $self->say("downloaded $filename");
+}
+
+## status
+
+sub status_string {
+    my $self = shift;
+    return sprintf '%s %s <%s> %s', 
+        map { defined $_ ? $_ : 'N/A' }
+            $self->name, $self->filename, $self->url, $self->formatted_progress;
+}
+
+sub elapsed { time - $_[0]->started_at }
+
+sub formatted_progress {
+    my $self = shift;
+
+    my $total = $self->bytes_total;
+    my $received = $self->bytes_received;
+
+    my $status = '';
+
+    my $progress = $self->progress;
+    if (defined $received) {
+        if (defined $total) {
+            $status .= "$received/$total";
+            $progress = $received / $total unless defined $progress;
+        } else {
+            $status .= "$received/?";
+        }
+    } else {
+        $status .= '-';
+    }
+
+    $status .= sprintf ' (%.1f%%)', $progress * 100 if defined $progress;
+
+    return $status;
 }
 
 1;
