@@ -63,7 +63,8 @@ sub {
     $self->mech->post($url, [ downloadLink => 'show' ]);
     $self->sleep(1);
 
-    my $download_res = $self->mech->simple_request(POST $url, [ download => 'normal' ]);
+    my $g = $self->mech->no_follow_redirect;
+    my $download_res = $self->mech->post($url, [ download => 'normal' ]);
     $download_res->is_redirect or do {
         warn 'not redirect: ' . $download_res->as_string;
         $self->log(error => 'failed; not redirect');

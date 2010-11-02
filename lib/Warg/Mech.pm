@@ -1,7 +1,11 @@
 package Warg::Mech;
+use strict;
+use warnings;
 use base 'WWW::Mechanize';
 use HTML::TreeBuilder::XPath;
 use Scalar::Util qw(weaken);
+use Guard ();
+use Carp;
 
 sub new {
     my ($class, %args) = @_;
@@ -90,6 +94,16 @@ sub get_basic_credentials {
         my $user_pass = $self->downloader->ask(qq(Basic auth for '$realm' <$uri>));
         return split /:/, $user_pass;
     }
+}
+
+sub no_follow_redirect {
+    my $self = shift;
+    carp 'no_follow_redirect in void context' unless defined wantarray;
+
+    my $requests_redirectable = $self->requests_redirectable([]);
+    return Guard::guard {
+        $self->requests_redirectable($requests_redirectable);
+    };
 }
 
 sub _destroy_tree {
