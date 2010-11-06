@@ -39,7 +39,7 @@ sub do_challenge {
     my $res = $self->user_agent->get($url);
     $res->is_success or die "GET $url: $res->message";
 
-    $res->content =~ /^var RecaptchaState = ({.+});$/ms or die 'Could not parse response';
+    $res->decoded_content =~ /^var RecaptchaState = ({.+});$/ms or die 'Could not parse response';
 
     my $challenge = eval { JSON->new->allow_barekey->allow_singlequote->decode($1) } or die qq(Could not parse JSON: $@, text='$1');
     unless ($challenge->{challenge}) {

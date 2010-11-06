@@ -2,7 +2,7 @@ package Warg::Role::Log;
 use Any::Moose '::Role';
 use Log::Handler;
 
-our $DefaultLogLevel = 'notice';
+our $DefaultLogLevel ||= 'notice';
 
 has logger => (
     is  => 'rw',

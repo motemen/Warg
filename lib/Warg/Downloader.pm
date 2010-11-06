@@ -225,6 +225,8 @@ sub download {
 
             $self->bytes_received(0) unless $self->bytes_received;
             $self->{bytes_received} += length $data;
+
+            return 1;
         }
     );
     $self->mech->get($url);
