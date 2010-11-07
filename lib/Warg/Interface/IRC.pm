@@ -54,6 +54,7 @@ use AnyEvent;
 use AnyEvent::IRC::Client;
 use AnyEvent::IRC::Util qw(mk_msg rfc_code_to_name);
 use Coro;
+use Coro::Timer;
 use String::Random qw(random_regex);
 use Carp;
 
@@ -61,7 +62,14 @@ sub say {
     my ($self, $message, $args) = @_;
     croak 'no channel specified' unless $args->{channel};
 
-    $self->notice($args->{channel}, $message);
+    my ($msg, @msgs) = split /\n/, $message;
+
+    $self->notice($args->{channel}, $msg);
+
+    foreach (@msgs) {
+        Coro::Timer::sleep 1;
+        $self->notice($args->{channel}, $_);
+    }
 }
 
 sub ask {

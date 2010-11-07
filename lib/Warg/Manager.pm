@@ -146,10 +146,11 @@ sub reload {
 sub jobs {
     my ($self, undef, $args) = @_;
 
+    my @status;
     while (my ($id, $downloader) = each %{ $self->jobs }) {
-        $self->interface->say($downloader->status_string, $args);
-        Coro::Timer::sleep 1;
+        push @status, $downloader->status_string;
     }
+    $self->interface->say(join("\n", @status), $args);
 }
 
 1;
