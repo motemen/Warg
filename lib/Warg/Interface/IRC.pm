@@ -163,11 +163,13 @@ sub on_connect {
 
 sub on_debug_send {
     my ($self, $con, $command, @params) = @_;
+    return if $command eq 'PONG';
     $self->log(debug => ">>> $command @params");
 }
 
 sub on_debug_recv {
     my ($self, $con, $ircmsg) = @_;
+    return if $ircmsg->{command} eq 'PING';
     my $line = mk_msg $ircmsg->{prefix}, $ircmsg->{command}, @{$ircmsg->{params}};
     $self->log(debug => "<<< $line");
 }

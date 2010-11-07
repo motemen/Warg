@@ -11,6 +11,7 @@ requires 'WWW::Mechanize';
 requires 'HTTP::Config';
 requires 'File::Util';
 requires 'Guard';
+requires 'File::chdir';
 requires 'HTML::TreeBuilder::XPath', '0.11';
 
 requires 'Any::Moose', '0.13';
