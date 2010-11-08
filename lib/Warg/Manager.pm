@@ -63,6 +63,7 @@ __PACKAGE__->meta->make_immutable;
 use Warg::Mech;
 use Warg::Downloader::Metadata;
 use Coro;
+use Coro::Timer;
 use Regexp::Common qw(URI);
 
 our $RE_HTTP = $RE{URI}{HTTP}{ -scheme => 'https?' };
@@ -147,6 +148,7 @@ sub jobs {
 
     while (my ($id, $downloader) = each %{ $self->jobs }) {
         $self->interface->say($downloader->status_string, $args);
+        Coro::Timer::sleep 1;
     }
 }
 

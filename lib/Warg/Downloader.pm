@@ -147,7 +147,8 @@ sub work {
 
     async {
         $self->work_sync($url);
-        $self->say('finished');
+        # $self->say('finished');
+        $self->log(notice => "finished $url");
     };
 }
 
