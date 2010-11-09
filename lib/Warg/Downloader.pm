@@ -69,6 +69,17 @@ has url => (
     isa => 'Str',
 );
 
+has coro => (
+    is  => 'rw',
+    isa => 'Coro',
+);
+
+has status => (
+    is  => 'rw',
+    isa => 'Str',
+    default => sub { '' },
+);
+
 has started_at => (
     is  => 'ro',
     isa => 'Int',
@@ -101,6 +112,14 @@ has progress => (
     isa => 'Num',
 );
 
+around log => sub {
+    my ($orig, $self, @args) = @_;
+    if ($args[0] =~ /^(?:notice|warn|error|crit)$/) {
+        $self->status("$args[0]: @args[1..$#args]");
+    }
+    $self->$orig(@args);
+};
+
 no Any::Moose;
 
 __PACKAGE__->meta->make_immutable;
@@ -117,6 +136,7 @@ use File::Util qw(escape_filename);
 
 {
     # http://limilic.com/entry/n8mqybjxwsu6y3w2
+    # Coro::LWP が $ua->timeout を見るようにする
 
     no warnings 'redefine';
     my $ORIGINAL_send_request = \&LWP::UserAgent::send_request;
@@ -163,13 +183,19 @@ sub work_sync {
 }
 
 sub work {
-    my ($self, $url) = @_;
+    my ($self, $url, $cb) = @_;
 
-    async {
+    $self->{coro} = async {
         $self->work_sync($url);
         # $self->say('finished');
         $self->log(notice => "finished $url");
+        $cb->();
     };
+}
+
+sub cancel {
+    my $self = shift;
+    $self->coro->cancel if $self->coro;
 }
 
 sub name {

@@ -132,6 +132,24 @@ sub produce_downloader_from_url {
     }
 }
 
+sub work_for_url {
+    my ($self, $url, $args) = @_;
+
+    if (my $downloader = $self->produce_downloader_from_url($url, args => $args)) {
+        $self->jobs->{ $downloader->id } = $downloader;
+        $downloader->work($url, sub { delete $self->jobs->{ $downloader->id } });
+    } else {
+        $self->log(notice => "Cannot handle $url");
+    }
+}
+
+sub cancel {
+    my ($self, $id) = @_;
+    my $downloader = delete $self->jobs->{$id} or return undef;
+    $downloader->cancel;
+    return $downloader;
+}
+
 sub handle_input {
     my ($self, $input, $args) = @_;
 
@@ -142,12 +160,7 @@ sub handle_input {
     }
 
     foreach my $url ($input =~ /$RE_HTTP/go) {
-        if (my $downloader = $self->produce_downloader_from_url($url, args => $args)) {
-            $self->jobs->{ $downloader->id } = $downloader;
-            $downloader->work($url, sub { delete $self->jobs->{ $downloader->id } });
-        } else {
-            $self->log(notice => "Cannot handle $url");
-        }
+        $self->work_for_url($url, $args);
     }
 }
 
