@@ -115,6 +115,26 @@ use Cwd qw(getcwd);
 use Carp;
 use File::Util qw(escape_filename);
 
+{
+    # http://limilic.com/entry/n8mqybjxwsu6y3w2
+
+    no warnings 'redefine';
+    my $ORIGINAL_send_request = \&LWP::UserAgent::send_request;
+
+    *LWP::UserAgent::send_request = sub {
+        my ($self, $req, @args) = @_;
+
+        my $res;
+        my $coro; $coro = async {
+            my $w; $w = AE::timer($self->timeout, 0, sub { undef $w; $coro->cancel });
+            $res = $self->$ORIGINAL_send_request($req, @args);
+        };
+        $coro->join;
+
+        return $res || LWP::UserAgent::_new_response($req, 500, 'Coro timeout');
+    };
+}
+
 sub metadata_class {
     my $class = shift;
 
