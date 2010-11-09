@@ -13,6 +13,11 @@ sub {
 
     $self->mech->get($url) unless ($self->mech->base || '') eq $url;
 
+    if ($self->mech->content =~ m#<script language=JavaScript>starthtimer\(\)</script>#) {
+        $self->mech->log(error => 'Reached hourly traffic limit');
+        return;
+    }
+
     $self->mech->form_name('f');
     $self->sleep((int($self->mech->current_form->value('wait')) || 30) + 3);
     $self->mech->submit_form;
