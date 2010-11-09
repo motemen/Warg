@@ -293,4 +293,19 @@ sub formatted_progress {
     return $status;
 }
 
+sub serialize_as_string {
+    my $self = shift;
+
+    return join "\t", (
+        $self->id,
+        $self->name,
+        $self->filename,
+        $self->url,
+        $self->formatted_progress,
+        $self->bytes_total,
+        $self->bytes_received,
+        $self->progress,
+    );
+}
+
 1;

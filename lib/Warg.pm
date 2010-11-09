@@ -27,6 +27,7 @@ sub _build_manager {
     return Warg::Manager->new(
         interface => $self->interface,
         logger    => $self->logger,
+        control_listen => $self->control_listen,
         $self->scripts_dir  ? ( scripts_dir  => $self->scripts_dir  ) : (),
         $self->download_dir ? ( download_dir => $self->download_dir ) : (),
     );
@@ -80,6 +81,14 @@ has debug => (
     is  => 'rw',
     isa => 'Bool',
     metaclass => 'Getopt',
+);
+
+# --control-listen /tmp/warg_socket
+has control_listen => (
+    is  => 'rw',
+    isa => 'Str',
+    metaclass => 'Getopt',
+    cmd_flag  => 'control-listen',
 );
 
 no Any::Moose;

@@ -56,14 +56,26 @@ has jobs => (
     default => sub { +{} },
 );
 
+has control_listen => (
+    is  => 'rw',
+    isa => 'Str',
+);
+
+has control_socket_guard => (
+    is  => 'rw',
+    isa => 'Guard',
+);
+
 no Any::Moose;
 
 __PACKAGE__->meta->make_immutable;
 
+use AnyEvent::Socket;
 use Warg::Mech;
 use Warg::Downloader::Metadata;
 use Coro;
 use Coro::Timer;
+use Coro::Handle;
 use Regexp::Common qw(URI);
 
 our $RE_HTTP = $RE{URI}{HTTP}{ -scheme => 'https?' };
@@ -71,6 +83,7 @@ our $RE_HTTP = $RE{URI}{HTTP}{ -scheme => 'https?' };
 sub BUILD {
     my $self = shift;
     $self->load_script_metadata;
+    $self->setup_control_socket;
 }
 
 sub load_script_metadata {
@@ -79,6 +92,23 @@ sub load_script_metadata {
         $self->log(info => "loading metadata of $_");
         $self->script_metadata->{$_} = Warg::Downloader::Metadata->new(script => $_);
     }
+}
+
+sub setup_control_socket {
+    my $self = shift;
+    my $listen = $self->control_listen or return;
+    my ($host, $port) = $listen =~ /^(.*):(\d+)$/ ? ($1, $2) : ('unix/', $listen);
+    $self->{control_socket_guard} = tcp_server $host, $port, unblock_sub {
+        my ($fh, $host, $port) = @_;
+        $fh = unblock $fh;
+        while (my $input = $fh->readline) {
+            chomp $input;
+
+            if (my $control = Warg::Manager::Control->can($input)) {
+                $fh->print($self->$control);
+            }
+        }
+    };
 }
 
 sub produce_downloader_from_url {
@@ -151,6 +181,18 @@ sub jobs {
         push @status, $downloader->status_string;
     }
     $self->interface->say(join("\n", @status), $args);
+}
+
+package Warg::Manager::Control;
+
+sub jobs {
+    my $self = shift;
+    return join("\n", map $_->serialize_as_string, keys %{ $self->jobs }) . "\n";
+}
+
+sub cancel {
+    my ($self, $id) = @_;
+    $self->cancel($id);
 }
 
 1;
