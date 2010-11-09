@@ -6,6 +6,11 @@ use HTML::TreeBuilder::XPath;
 use Scalar::Util qw(weaken);
 use Guard ();
 use Carp;
+use LWPx::ParanoidAgent;
+
+BEGIN {
+    @WWW::Mechanize::ISA = qw(LWPx::ParanoidAgent);
+}
 
 our $log_fh;
 

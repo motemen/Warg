@@ -8,6 +8,7 @@ requires 'AnyEvent::IRC::Client';
 requires 'Coro';
 requires 'Log::Handler';
 requires 'WWW::Mechanize';
+requires 'LWPx::ParanoidAgent';
 requires 'HTTP::Config';
 requires 'File::Util';
 requires 'Guard';
