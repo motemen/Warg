@@ -103,9 +103,13 @@ sub setup_control_socket {
         $fh = unblock $fh;
         while (my $input = $fh->readline) {
             chomp $input;
-
-            if (my $control = Warg::Manager::Control->can($input)) {
-                $fh->print($self->$control);
+            
+            my ($command, @args) = split /\s+/, $input or next;
+            if (my $control = Warg::Manager::Control->can($command)) {
+                my $res = eval { $self->$control(@args) } || $@;
+                $res .= "\n" unless $res =~ /\n$/;
+                utf8::encode $res if utf8::is_utf8 $res;
+                $fh->print($res) if defined $res;
             }
         }
     };
@@ -198,14 +202,31 @@ sub jobs {
 
 package Warg::Manager::Control;
 
+sub work {
+    my ($self, $url) = @_;
+    $self->work_for_url($url) if $url;
+}
+
 sub jobs {
     my $self = shift;
-    return join("\n", map $_->serialize_as_string, keys %{ $self->jobs }) . "\n";
+    return join("\n", map $_->serialize_as_json, values %{ $self->jobs }) . "\n";
+}
+
+sub reload {
+    require Module::Refresh;
+    Module::Refresh->refresh;
+    return 'reloaded'
 }
 
 sub cancel {
     my ($self, $id) = @_;
-    $self->cancel($id);
+    my $downloader = $self->cancel($id);
+
+    if ($downloader) {
+        return $downloader->serialize_as_json;
+    } else {
+        return 'job not found';
+    }
 }
 
 1;
