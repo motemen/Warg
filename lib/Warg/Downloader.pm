@@ -98,11 +98,23 @@ has filename => (
 has bytes_total => (
     is  => 'rw',
     isa => 'Int',
+    trigger => sub {
+        my ($self, $value) = @_;
+        if (defined $self->{bytes_received} && defined $value) {
+            $self->progress($self->{bytes_received} / $value);
+        }
+    }
 );
 
 has bytes_received => (
     is  => 'rw',
     isa => 'Int',
+    trigger => sub {
+        my ($self, $value) = @_;
+        if (defined $value && defined $self->{bytes_total}) {
+            $self->progress($value / $self->{bytes_total});
+        }
+    }
 );
 
 # bytes_total, bytes_received が分からない場合にこれを更新してもよい

@@ -25,8 +25,8 @@ has manager => (
 sub _build_manager {
     my $self = shift;
     return Warg::Manager->new(
-        interface => $self->interface,
-        logger    => $self->logger,
+        interface      => $self->interface,
+        logger         => $self->logger,
         control_listen => $self->control_listen,
         $self->scripts_dir  ? ( scripts_dir  => $self->scripts_dir  ) : (),
         $self->download_dir ? ( download_dir => $self->download_dir ) : (),

@@ -35,6 +35,8 @@ no warnings 'redefine';
     my $res = HTTP::Response->parse(do { local $/; <$fh> });
     $res->request($request);
 
+    $self->run_handlers(response_data => $res);
+
     if (ref $content_cb eq 'CODE') {
         $content_cb->($res->content, $res, undef); # XXX no protocol
     }

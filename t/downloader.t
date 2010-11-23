@@ -16,6 +16,13 @@ my $download_dir = tempdir(CLEANUP => 1);
 
 use_ok 'Warg::Downloader';
 
+subtest progress => sub {
+    my $downloader = new_ok 'Warg::Downloader', [ code => sub {} ];
+    $downloader->bytes_total(1000);
+    $downloader->bytes_received(500);
+    is $downloader->progress, 0.5;
+};
+
 sub HTTP::Message::parsed_content {
     my $self = shift;
     return +{ map { $_->[0] => uri_unescape $_->[1] } map { [ split /=/, $_, 2 ] } split /&/, $self->content };
