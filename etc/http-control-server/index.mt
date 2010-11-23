@@ -12,6 +12,7 @@ table {
 }
 td, th {
   padding: 0.3em;
+  font-size: small;
 }
 th {
   background-color: #444;
@@ -40,6 +41,7 @@ div.progress {
       <th>Name</th>
       <th>URL</th>
       <th>Filename</th>
+      <th>Status</th>
       <th>Progress</th>
     </tr>
 ?   for my $job (@$jobs) {
@@ -47,6 +49,7 @@ div.progress {
       <td><?= $job->{name} ?></td>
       <td><?= $job->{url} ?></td>
       <td><?= $job->{filename} ?></td>
+      <td><?= $job->{status} ?></td>
       <td>
         <?= $job->{formatted_progress} ?>
         <div class="progress-container">
@@ -58,6 +61,7 @@ div.progress {
   </table>
 ? }
 
+<h2>Debug</h2>
 <pre style="background-color: #444; padding: 0.5em; font-size: 90%"><?= Data::Dumper->new([ $result ], [ 'result' ])->Indent(1)->Dump ?></pre>
 
 </body>
