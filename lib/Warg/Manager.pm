@@ -77,6 +77,7 @@ use Coro;
 use Coro::Timer;
 use Coro::Handle;
 use Regexp::Common qw(URI);
+use JSON::XS;
 
 our $RE_HTTP = $RE{URI}{HTTP}{ -scheme => 'https?' };
 
@@ -101,15 +102,25 @@ sub setup_control_socket {
     $self->{control_socket_guard} = tcp_server $host, $port, unblock_sub {
         my ($fh, $host, $port) = @_;
         $fh = unblock $fh;
+
         while (my $input = $fh->readline) {
             chomp $input;
             
             my ($command, @args) = split /\s+/, $input or next;
             if (my $control = Warg::Manager::Control->can($command)) {
                 my $res = eval { $self->$control(@args) } || $@;
-                $res .= "\n" unless $res =~ /\n$/;
-                utf8::encode $res if utf8::is_utf8 $res;
-                $fh->print($res) if defined $res;
+                if (ref $res eq 'HASH') {
+                    $res = {
+                        success => JSON::XS::true,
+                        result  => $res,
+                    };
+                } else {
+                    $res = {
+                        success => JSON::XS::false,
+                        message => $res,
+                    };
+                }
+                $fh->print(encode_json $res);
             }
         }
     };
@@ -142,8 +153,10 @@ sub work_for_url {
     if (my $downloader = $self->produce_downloader_from_url($url, args => $args)) {
         $self->jobs->{ $downloader->id } = $downloader;
         $downloader->work($url, sub { delete $self->jobs->{ $downloader->id } });
+        return $downloader;
     } else {
         $self->log(notice => "Cannot handle $url");
+        return undef;
     }
 }
 
@@ -201,15 +214,18 @@ sub jobs {
 }
 
 package Warg::Manager::Control;
+use JSON::XS;
 
 sub work {
     my ($self, $url) = @_;
-    $self->work_for_url($url) if $url;
+    if (my $downloader = $self->work_for_url($url)) {
+        return { job => $downloader };
+    }
 }
 
 sub jobs {
     my $self = shift;
-    return join("\n", map $_->serialize_as_json, values %{ $self->jobs }) . "\n";
+    return { jobs => [ map $_->as_serializable_hash, values %{ $self->jobs } ] };
 }
 
 sub reload {
@@ -223,7 +239,7 @@ sub cancel {
     my $downloader = $self->cancel($id);
 
     if ($downloader) {
-        return $downloader->serialize_as_json;
+        return { job => $downloader->as_serializable_hash };
     } else {
         return 'job not found';
     }

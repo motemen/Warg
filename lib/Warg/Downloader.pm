@@ -188,9 +188,18 @@ sub work_sync {
     $self->url($url);
 
     my $ret = eval { $self->code->($self, $url) };
-    if (!defined $ret && $@) {
-        $self->log(error => $@);
-    }
+
+    do {
+        if (!defined $ret && $@) {
+            $self->log(error => $@);
+        }
+
+        if (ref $ret eq 'AnyEvent::CondVar') {
+            $ret->cb(rouse_cb);
+            $ret = rouse_wait;
+        }
+    } while (ref $ret eq 'AnyEvent::CondVar');
+
     return $ret;
 }
 
@@ -201,7 +210,7 @@ sub work {
         $self->work_sync($url);
         # $self->say('finished');
         $self->log(notice => "finished $url");
-        $cb->();
+        $cb->() if $cb;
     };
 }
 
@@ -331,15 +340,13 @@ sub formatted_progress {
     return $status;
 }
 
-sub serialize_as_json {
+sub as_serializable_hash {
     my $self = shift;
-
-    require JSON::XS;
-    return JSON::XS::encode_json(+{
+    return {
         map {
             $_ => $self->$_
-        } qw(id name filename url status bytes_total bytes_received progress)
-    });
+        } qw(id name filename url status bytes_total bytes_received progress formatted_progress)
+    };
 }
 
 1;
