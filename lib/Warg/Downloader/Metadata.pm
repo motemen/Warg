@@ -2,6 +2,14 @@ package Warg::Downloader::Metadata;
 use Any::Moose;
 use Any::Moose 'X::Types::Path::Class';
 
+# is
+# - downloader script metadata
+# has
+# - downloader config (matches against http response)
+# - script body as a coderef
+# does
+# - produce downloader (job) instance
+
 has script => (
     is  => 'ro',
     isa => 'Path::Class::File',
@@ -55,6 +63,7 @@ sub BUILD {
     my ($pkg, $sub) = $self->_eval_script;
     $self->{code} = $sub;
 
+    # our $Config = ...
     my $config = do { no strict 'refs'; ${"$pkg\::Config"} };
     $self->{config} = Warg::Downloader::Config->new($config);
 }

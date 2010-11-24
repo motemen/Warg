@@ -14,7 +14,8 @@ with 'Warg::Role::Log';
 # - produce downloader session
 
 has interface => (
-    is => 'rw',
+    is  => 'rw',
+    isa => 'Warg::Interface',
 );
 
 has scripts_dir => (
@@ -37,6 +38,11 @@ has mech => (
     lazy_build => 1,
 );
 
+sub _build_mech {
+    my $self = shift;
+    return Warg::Mech->new(logger => $self->logger);
+}
+
 has download_dir => (
     is  => 'rw',
     isa => 'Path::Class::Dir',
@@ -44,11 +50,6 @@ has download_dir => (
     required => 1,
     default  => './downloads',
 );
-
-sub _build_mech {
-    my $self = shift;
-    return Warg::Mech->new(logger => $self->logger);
-}
 
 has jobs => (
     is  => 'rw',
@@ -170,12 +171,6 @@ sub cancel {
 sub handle_input {
     my ($self, $input, $args) = @_;
 
-    if ($input =~ /^warg:(\w+)$/) {
-        if (my $code = Warg::Manager::Commands->can($1)) {
-            $self->$code($input, $args);
-        }
-    }
-
     foreach my $url ($input =~ /$RE_HTTP/go) {
         $self->work_for_url($url, $args);
     }
@@ -186,35 +181,7 @@ sub start_interactive {
     $self->interface->interact(sub { $self->handle_input(@_) });
 }
 
-package Warg::Manager::Commands;
-use UNIVERSAL::require;
-
-sub reload {
-    my $self = shift;
-
-    if (Module::Refresh->require) {
-        Module::Refresh->refresh;
-    } else {
-        $self->log(error => "Could not require Module::Refresh: $@");
-    }
-
-    # TODO cwd
-    $self->script_metadata({});
-    $self->load_script_metadata;
-}
-
-sub jobs {
-    my ($self, undef, $args) = @_;
-
-    my @status;
-    while (my ($id, $downloader) = each %{ $self->jobs }) {
-        push @status, $downloader->status_string;
-    }
-    $self->interface->say(join("\n", @status), $args);
-}
-
 package Warg::Manager::Control;
-use JSON::XS;
 
 sub work {
     my ($self, $url) = @_;

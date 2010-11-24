@@ -6,7 +6,7 @@ use AnyEvent;
 
 our $Config = HTTP::Config->new;
 if ($ENV{WARG_DEVEL}) {
-    $Config->add(m_host => 'localhost');
+    $Config->add(m_host => '192.0.2.1');
 }
 
 my @alnum = ('a'..'z','A'..'Z','0'..'9');
