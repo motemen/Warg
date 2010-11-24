@@ -1,0 +1,44 @@
+# NAME
+
+Warg - Downloader
+
+# SYNOPSIS
+
+    % ./warg.pl # implies --interface Console
+
+    % ./warg.pl -i IRC --server localhost:6667 --channels #foo
+
+# DESCRIPTION
+
+Warg is a downloader extensible by scripts.
+
+Once a URL is feeded, Warg searches its downloader scripts directory for applicable one to that URL.
+When found, Warg produces a job for downloading. Downloader can ask user for input, such as captcha answer.
+
+# DOWNLOADER
+
+A downloader (for a site) is a Perl script.
+
+The script should have `our $Config` which is a `HTTP::Config` or a regexp that matches URL.
+
+The script must return a coderef, which receives `Warg::Downloader` and `URI` as argumetns.
+
+    our $Config = HTTP::Config->new;
+    $Config->add(m_host => ...);
+
+    sub {
+        my ($self, $url) = @_;
+        ...
+        $self->download($file_url);
+    };
+
+TBD
+
+# AUTHOR
+
+motemen <motemen@gmail.com>
+
+# LICENSE
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.

@@ -24,6 +24,8 @@ test_requires 'Test::More';
 tests 't/*.t';
 # author_tests 'xt';
 
+readme_markdown_from_pod;
+
 auto_include;
 
 WriteAll;
