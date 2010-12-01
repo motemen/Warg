@@ -14,10 +14,15 @@ requires 'File::Util';
 requires 'Guard';
 requires 'File::chdir';
 requires 'HTML::TreeBuilder::XPath', '0.11';
+requires 'Regexp::Common';
+requires 'String::Random';
+requires 'WWW::NicoVideo::Download';
+requires 'Config::Pit';
 
 requires 'Any::Moose', '0.13';
 requires_any_moose 'X::Getopt';
 requires_any_moose 'X::Getopt::Strict';
+requires_any_moose 'X::Types::Path::Class';
 
 test_requires 'Test::More';
 

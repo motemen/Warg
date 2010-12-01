@@ -169,6 +169,13 @@ sub on_connect {
     }
 }
 
+sub on_registered {
+    my ($self, $con) = @_;
+    foreach (@{ $self->channels }) {
+        $con->send_srv(JOIN => $_);
+    }
+}
+
 sub on_debug_send {
     my ($self, $con, $command, @params) = @_;
     return if $command eq 'PONG';
