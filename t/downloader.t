@@ -78,30 +78,4 @@ subtest 'ichigo-up' => sub {
     ok -f $file, "stored to $file";
 };
 
-subtest 'megaupload' => sub {
-    my $interface = Warg::Interface::Code->new(
-        say => sub { shift; note @_ },
-        ask => sub { shift; note @_; return 'RSX2' }
-    );
-
-    my $downloader = Warg::Downloader->from_script(
-        'scripts/megaupload.pl', (
-            interface => $interface,
-            log_level => 'emerg',
-            mech      => $mech,
-        )
-    );
-    isa_ok $downloader, 'Warg::Downloader';
-
-    $downloader->work('http://www.megaupload.com/?d=PLI3TEGV');
-    cede;
-
-    cede; # resume working; go GET http://www.megaupload.com/?d=PLI3TEGV
-    cmp_deeply $downloader->mech->response, methods(
-        base => str 'http://www.megaupload.com/?d=PLI3TEGV'
-    );
-
-    cede; # resume working got POST http://www.megaupload.com/?d=PLI3TEGV
-};
-
 done_testing;

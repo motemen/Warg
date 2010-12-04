@@ -8,11 +8,16 @@ use Guard ();
 use Carp;
 use LWPx::ParanoidAgent;
 
-BEGIN {
-    @WWW::Mechanize::ISA = qw(LWPx::ParanoidAgent);
-}
+# XXX LWPx::ParanoidAgent does not support add_handler() ?
+# BEGIN {
+#     @WWW::Mechanize::ISA = qw(LWPx::ParanoidAgent);
+# }
 
 our $log_fh;
+
+if ($ENV{WARG_MECH_NO_ZLIB}) {
+    $WWW::Mechanize::HAS_ZLIB = 0;
+}
 
 if (my $log = $ENV{WARG_MECH_LOG}) {
     open $log_fh, '>', "$log.${\time}.$$";

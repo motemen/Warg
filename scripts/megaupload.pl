@@ -11,13 +11,15 @@ sub {
 
     $self->mech->get($url) unless ($self->mech->base || '') eq $url;
 
-    my ($filename) = $self->mech->res->decoded_content =~ m$<font style="font-family:arial; color:#FF6700; font-size:\d+px; font-weight:bold;">(.+)</font><br>$;
-    $self->say("filename: $filename");
+    my ($filename) = $self->mech->res->decoded_content =~ m$(?:File name|ファイル名):(?:<[^>]+>| )*(.+)$;
+    $filename =~ s/<[^>]+>//g;
+    $self->filename($filename);
 
     my $captcha = [ $self->mech->tree->findnodes('//img[contains(@src, "gencap.php")]') ]->[0];
-    my $key = $self->ask('captcha: ' . $captcha->attr('src'));
-    
-    $self->mech->submit_form(with_fields => { captcha => $key });
+    if ($captcha) {
+        my $key = $self->ask('captcha: ' . $captcha->attr('src'));
+        $self->mech->submit_form(with_fields => { captcha => $key });
+    }
 
     $self->sleep(45); # politely
 

@@ -93,6 +93,10 @@ has started_at => (
 has filename => (
     is  => 'rw',
     isa => 'Str',
+    trigger => sub {
+        my $self = shift;
+        $self->say('filename: ' . $self->filename);
+    },
 );
 
 has bytes_total => (
@@ -158,7 +162,7 @@ use File::Util qw(escape_filename);
 
         my $res;
         my $coro; $coro = async {
-            my $w; $w = AE::timer($self->timeout, 0, sub { undef $w; $coro->cancel });
+            my $w; $w = $self->timeout && AE::timer($self->timeout, 0, sub { undef $w; $coro->cancel });
             $res = $self->$ORIGINAL_send_request($req, @args);
         };
         $coro->join;
@@ -267,6 +271,7 @@ sub download {
     my $guard = $self->chdir_to_download_dir;
 
     $self->say("start downloading <$url>");
+    $self->mech->timeout(0);
 
     my ($filename, $fh);
     $self->mech->set_my_handler(
@@ -297,11 +302,16 @@ sub download {
             return 1;
         }
     );
-    $self->mech->get($url);
+
+    my $res = $self->mech->get($url);
     $self->mech->set_my_handler(response_data => undef);
     close $fh if defined $fh;
 
-    $self->say("downloaded $filename");
+    if ($res->is_success) {
+        $self->say("downloaded $filename");
+    } else {
+        $self->log(error => 'download failed: ' . $res->message);
+    }
 }
 
 ## status
