@@ -19,9 +19,11 @@ sub {
 
     # TODO ここは Downloader の API で
     my ($r, $w) = map { unblock $_ } portable_pipe;
-    my $cv = run_cmd [ 'btdownloadheadless', $url, split / /, ($ENV{WARG_BTDOWNLOADHEADLESS_ARGS} || '') ],
+    my $cv = run_cmd [ 'btdownloadheadless', $url, '--display_interval', 5, split / /, ($ENV{WARG_BTDOWNLOADHEADLESS_ARGS} || '') ],
         '>'  => sub { $w->print($_[0]) },
         '$$' => \my $pid;
+
+    $self->log(notice => "btdownloadheadless: $pid");
 
     while (local $_ = $r->readline) {
         $self->log(debug => $_);
@@ -38,6 +40,7 @@ sub {
         elsif (/^time left:\s+Download Succeeded!/) {
             $self->say("downloaded: $filename");
             $self->sleep(3);
+            $self->log(notice => "sending HUP to $pid");
             kill 'HUP', $pid;
             last;
         }
